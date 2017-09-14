@@ -25,13 +25,13 @@
     <!-- 导航栏 -->
     <div class="ui borderless attached stackable  menu">
       <div class="ui container ">
-        <a class="item active" href="/">
+        <a class="active item" href="{% url 'home' %}">
           Home
         </a>
         <a class="item">
           Newest
         </a>
-        <a class="item" href="/popular/">
+        <a class=" item" href="{% url 'popular' %}">
           Popular
         </a>
         <div class="right menu">
@@ -62,20 +62,20 @@
             </div>
           </div>
           {%if user%}
-          <a class="item button" href="/logout/" >
+          <a class="item button" href="{% url 'oneword:user_logout' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign out icon"></i>
               Logout
             <!-- </button> -->
           </a>
           {%else%}
-          <a class="item " href="/sign/" >
+          <a class="item " href="{% url 'oneword:user_sign' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign in icon"></i>
               Log in
             <!-- </button> -->
           </a>
-          <a href="/register/" class="ui item ">
+          <a href="{% url 'oneword:user_register' %}" class="ui item ">
             <button class="ui red button">Sign up</button></a>
           {%endif%}
         </div>
@@ -87,22 +87,22 @@
 
       <!-- 文章卡片组 -->
       <div class="ui four doubling stackable cards">
-        {% for article in articles%}
+        {% for article in article_info %}
 
         <!-- 单一文章 -->
         <div class="card">
           <!-- 正文 -->
-          <div class="article content" id="{{article.id}}">
-            <div class="header" >{{ article.title|capfirst}}</div>
+          <div class="article content" id="{{ article.article.id }}">
+            <div class="header" >{{ article.article.title|capfirst}}</div>
             <div class="meta">
-              #{{article.tag}}|
-              {{article.create_time|date:"F j, Y" }}
+              #{{article.article.tag}}|
+              {{article.article.create_time|date:"F j, Y" }}
               <span class="right floated">
-                <i>{{article.author|capfirst}}</i>
+                <i>{{article.article.author|capfirst}}</i>
               </span>
             </div>
             <div class="description">
-              {{ article.content | truncatewords:"30" }}
+              {{ article.article.content | truncatewords:"30" }}
             </div>
           </div>
           <!-- 标签状态 -->
@@ -114,29 +114,24 @@
               <div class="ui dropdown">
                 <a href="#">
                   <i class="comment icon"></i>
-                  {%for k,v in count_comments.items %}
-                  {% if k == article.title%}
-                  {{v}} comments
-                  {%endif%}
-                  {%endfor%}
+                  {{ article.comments_num }}
+                   comments
                 </a>
               </div>
             </span>
           </div>
 
           <!-- comments评论区modal -->
-          <div article_id={{article.id}} class="ui tiny modal">
+          <div article_id="{{article.article.id}}" class="ui tiny modal">
             <div class="header">
-              {{article.title}}
+              {{article.article.title|capfirst}}
             </div>
             <div class="content">
-              <p>{{article.content}}</p>
+              <p>{{article.article.content}}</p>
             </div>
             <div class="ui container padded segment">
               <div class="ui comments">
-                {% for title,comment in comments.items %}
-                  {% if title == article.title%}
-                    {%for i in comment%}
+                    {%for i in article.article_comments%}
                     <div class="comment">
                       <a class="avatar">
                         <img src="{%static 'image/elliot.jpg'%}" alt="">
@@ -144,26 +139,25 @@
                       <div class="content">
                         <a class="author">{{i.author}}</a>
                         <div class="metadata">
-                          <span class="date">{{i.follow_time}}</span>
+                          <span class="date">{{i.time}}</span>
                         </div>
                         <div class="text">
-                          {{i.follow}}
+                          {{i.comment}}
                         </div>
                       </div>
                     </div>
                     {%endfor%}
-                  {%endif%}
-                {% endfor%}
+
               </div>
 
               <!-- 添加评论form -->
 
               <form class="ui reply form" action="/add_comment/" method="post">
                 <div class="article_title" style="display:none;">
-                  <input type="text" name="article_title" value="{{article.title}}">
+                  <input type="text" name="article_title" value="{{article.article.title}}">
                 </div>
                 <div class="field">
-                  <textarea name="follow_content"></textarea>
+                  <textarea name="comment_content"></textarea>
                 </div>
 
                 <button class="ui primary submit labeled icon button" type="submit" >
@@ -207,7 +201,6 @@
             <div class="ui error message">
 
             </div>
-            {% csrf_token %}
           </form>
       </div>
     </div>
