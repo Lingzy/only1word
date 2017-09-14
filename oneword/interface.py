@@ -1,4 +1,4 @@
-from message.models import Article,Comment
+from oneword.models import Article,Comment
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError,ObjectDoesNotExist
 
