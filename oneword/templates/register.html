@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    {% load staticfiles%}
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="{% static 'css/semantic.css'%}">
+  </head>
+  <body>
+    <div class="ui attached borderless tackable menu">
+      <div class="ui container ">
+        <a class="item active" href="/">
+          Home
+        </a>
+        <a class="item">
+          Newest
+        </a>
+        <a class="item">
+          Popular
+        </a>
+        <div class="right menu">
+
+          <div class="item">
+            <div class="ui icon input">
+              <input type="text" placeholder="Search...">
+              <i class="search link icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ui centered floated card">
+      <h1 class="ui inverted centered blue header segment">Sign Up</h1>
+      <div class="ui container segment">
+        <form class="ui form" action="/register/" method="post">
+          {{form.as_p}}
+          <button class="ui red button" type="submit" >
+            Register
+          </button>
+          <div class="ui divider">
+          </div>
+          <a href="/sign/" class="ui blue button">Has a account? Log in!</a>
+          {% csrf_token %}
+        </form>
+
+      </div>
+    </div>
+
+  </body>
+</html>

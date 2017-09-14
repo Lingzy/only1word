@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% load staticfiles %}
+    <meta charset="utf-8">
+    <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png">
+    <link href="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.css" rel="stylesheet">
+
+    <!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.0.min.js"></script> -->
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.js"></script>
+    <script src="{% static 'js/notalong.js' %}"></script>
+    <title>
+      Simple story</title>
+    <!-- <link rel="stylesheet" href="{% static 'css/semantic.css'%}"> -->
+
+    <style media="screen">
+      .title_error{
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 导航栏 -->
+    <div class="ui borderless attached stackable  menu">
+      <div class="ui container ">
+        <a class="item active" href="/">
+          Home
+        </a>
+        <a class="item">
+          Newest
+        </a>
+        <a class="item" href="/popular/">
+          Popular
+        </a>
+        <div class="right menu">
+          <div class="item">
+
+            <button class="ui button" type="button" name="button" id="create">
+              <i class="write icon"></i>
+                Create
+
+              <!-- <i class="write icon"> -->
+              <!-- </i> -->
+            </button>
+          </div>
+          {% if user %}
+          <a class="ui item">
+            <i class="user icon"></i>
+            {{user|upper}}
+          </a>
+          {%endif%}
+          <!-- <div class="ui compact menu"> -->
+
+          <div class="item">
+            <div class="ui search">
+              <div class="ui icon input">
+                <input class="prompt" type="text" placeholder="Search title or author...">
+                <i class="search icon"></i>
+              </div>
+            </div>
+          </div>
+          {%if user%}
+          <a class="item button" href="/logout/" >
+            <!-- <button class="ui logout button" type="submit" name="button"> -->
+              <i class="sign out icon"></i>
+              Logout
+            <!-- </button> -->
+          </a>
+          {%else%}
+          <a class="item " href="/sign/" >
+            <!-- <button class="ui logout button" type="submit" name="button"> -->
+              <i class="sign in icon"></i>
+              Log in
+            <!-- </button> -->
+          </a>
+          <a href="/register/" class="ui item ">
+            <button class="ui red button">Sign up</button></a>
+          {%endif%}
+        </div>
+      </div>
+    </div>
+
+    <!-- 文章主体 -->
+    <div class="ui container segment">
+
+      <!-- 文章卡片组 -->
+      <div class="ui four doubling stackable cards">
+        {% for article in articles%}
+
+        <!-- 单一文章 -->
+        <div class="card">
+          <!-- 正文 -->
+          <div class="article content" id="{{article.id}}">
+            <div class="header" >{{ article.title|capfirst}}</div>
+            <div class="meta">
+              #{{article.tag}}|
+              {{article.create_time|date:"F j, Y" }}
+              <span class="right floated">
+                <i>{{article.author|capfirst}}</i>
+              </span>
+            </div>
+            <div class="description">
+              {{ article.content | truncatewords:"30" }}
+            </div>
+          </div>
+          <!-- 标签状态 -->
+          <div class="extra content">
+            <a href="#">
+            <i class="thumbs outline up icon"></i>
+            </a>
+            <span class="right floated">
+              <div class="ui dropdown">
+                <a href="#">
+                  <i class="comment icon"></i>
+                  {%for k,v in count_comments.items %}
+                  {% if k == article.title%}
+                  {{v}} comments
+                  {%endif%}
+                  {%endfor%}
+                </a>
+              </div>
+            </span>
+          </div>
+
+          <!-- comments评论区modal -->
+          <div article_id={{article.id}} class="ui tiny modal">
+            <div class="header">
+              {{article.title}}
+            </div>
+            <div class="content">
+              <p>{{article.content}}</p>
+            </div>
+            <div class="ui container padded segment">
+              <div class="ui comments">
+                {% for title,comment in comments.items %}
+                  {% if title == article.title%}
+                    {%for i in comment%}
+                    <div class="comment">
+                      <a class="avatar">
+                        <img src="{%static 'image/elliot.jpg'%}" alt="">
+                      </a>
+                      <div class="content">
+                        <a class="author">{{i.author}}</a>
+                        <div class="metadata">
+                          <span class="date">{{i.follow_time}}</span>
+                        </div>
+                        <div class="text">
+                          {{i.follow}}
+                        </div>
+                      </div>
+                    </div>
+                    {%endfor%}
+                  {%endif%}
+                {% endfor%}
+              </div>
+
+              <!-- 添加评论form -->
+
+              <form class="ui reply form" action="/add_comment/" method="post">
+                <div class="article_title" style="display:none;">
+                  <input type="text" name="article_title" value="{{article.title}}">
+                </div>
+                <div class="field">
+                  <textarea name="follow_content"></textarea>
+                </div>
+
+                <button class="ui primary submit labeled icon button" type="submit" >
+                  <i class="icon edit" ></i> Add Comment
+                </button>
+                <div class="ui error message">
+
+                </div>
+                {% csrf_token %}
+              </form>
+            </div>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+
+    <!-- 发布新帖 -->
+    <div id="create_new" class="ui tiny modal">
+      <div class="ui container segment">
+          <a name="createnew"></a>
+          <h3 class="ui inverted blue centered segment header">CREATE NEW</h3>
+          <form class="ui form" action="/create/" method="post">
+            <div class="field">
+              <label>Title</label>
+              <input type="text" name="title" id="article_title" placeholder="input the title" value="">
+              <p class="title_error">This title has been used,change another one</p>
+            </div>
+            <div class="field">
+              <label>Tags</label>
+              <input type="text" name="tags" placeholder="input tags" value="">
+            </div>
+            <div class="field">
+              <label>Content</label>
+              <textarea name="newcontent" cols="5"></textarea>
+              <!-- <input type="text" name="newcontent" placeholder="input you article,less than 140 characters" value=""> -->
+            </div>
+            <button class="ui submit button " type="submit" id="create_button">Create</button>
+            <div class="ui error message">
+
+            </div>
+            {% csrf_token %}
+          </form>
+      </div>
+    </div>
+
+  </body>
+</html>
