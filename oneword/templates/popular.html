@@ -62,20 +62,20 @@
             </div>
           </div>
           {%if user%}
-          <a class="item button" href="/logout/" >
+          <a class="item button" href="{% url 'oneword:user_logout' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign out icon"></i>
               Logout
             <!-- </button> -->
           </a>
           {%else%}
-          <a class="item " href="/sign/" >
+          <a class="item " href="{% url 'oneword:user_sign' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign in icon"></i>
               Log in
             <!-- </button> -->
           </a>
-          <a href="/register/" class="ui item ">
+          <a href="{% url 'oneword:user_register' %}" class="ui item ">
             <button class="ui red button">Sign up</button></a>
           {%endif%}
         </div>
@@ -124,10 +124,10 @@
           <!-- comments评论区modal -->
           <div article_id="{{article.article.id}}" class="ui tiny modal">
             <div class="header">
-              {{article.article.title}}
+              {{article.article.title|capfirst}}
             </div>
             <div class="content">
-              <p>{{article.content}}</p>
+              <p>{{article.article.content}}</p>
             </div>
             <div class="ui container padded segment">
               <div class="ui comments">

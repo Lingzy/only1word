@@ -32,14 +32,14 @@
     <div class="ui centered floated card">
       <h1 class="ui inverted centered blue header segment">Log in</h1>
       <div class="ui container segment">
-        <form class="ui form" action="/sign/" method="post">
+        <form class="ui form" action="{% url 'oneword:user_sign' %}" method="post">
           {{form.as_p}}
           <button class="ui red button" type="submit" >
             Sign
           </button>
           <div class="ui divider">
           </div>
-          <a href="/register/" class="ui blue button">No account? Sign up!</a>
+          <a href="{% url 'oneword:user_register' %}" class="ui blue button">No account? Sign up!</a>
           {% csrf_token %}
         </form>
 
