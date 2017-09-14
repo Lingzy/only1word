@@ -16,6 +16,7 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
+
 class Comment(models.Model):
     author = models.ForeignKey(User)
     article = models.ForeignKey(Article)
@@ -26,6 +27,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.article.title
+
 
 class MyFavorite(models.Model):
     collector = models.ForeignKey(User)
