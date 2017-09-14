@@ -18,9 +18,9 @@ def sign(request):
             username = request.POST['username']
             password = request.POST['password']
             user = authenticate(username=username,password=password)
-            if user.is_active:
-                request.session['user'] = username
+            if user:
                 login(request, user)
+                request.session['user'] = username
                 return HttpResponseRedirect("/")
         else:
             return render(request,"sign.html",{'form':form})
@@ -41,9 +41,15 @@ def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.username = form.username.lower()
             form.save()
-            return HttpResponseRedirect("/sign/")
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(username=username,password=password)
+
+            if user:
+                login(request,user)
+                request.session['user'] = username
+                return HttpResponseRedirect("/")
     else:
         form = UserCreationForm()
     return render(request,"register.html", {
@@ -53,7 +59,7 @@ def register(request):
 
 # 用户修改密码
 @login_required()
-def change_pawd(request):
+def change_pwd(request):
     if request.method == 'POST':
         old_pwd = request.POST.get('old_pwd','')
         new_pwd = request.POST.get('new_pwd','')
