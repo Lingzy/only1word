@@ -83,7 +83,10 @@
     </div>
 
     <!-- 文章主体 -->
-    <div class="ui container segment">
+    <div class="ui hidden divider  ">
+
+    </div>
+    <div class="ui container ">
 
       <!-- 文章卡片组 -->
       <div class="ui four doubling stackable cards">
@@ -94,6 +97,7 @@
           <!-- 正文 -->
           <div class="article content" id="{{ article.article.id }}">
             <div class="header" >{{ article.article.title|capfirst}}</div>
+
             <div class="meta">
               #{{article.article.tag}}|
               {{article.article.create_time|date:"F j, Y" }}
@@ -107,17 +111,24 @@
           </div>
           <!-- 标签状态 -->
           <div class="extra content">
-            <a href="#">
+            <a id="like">
             <i class="thumbs outline up icon"></i>
+            {{article.article.like}}
+            </a>
+            <a id="dislike">
+            <i class="thumbs outline down icon"></i>
+            {{article.article.dislike}}
             </a>
             <span class="right floated">
-              <div class="ui dropdown">
-                <a href="#">
-                  <i class="comment icon"></i>
+              <a id="favorite">
+                <i class="empty heart icon"></i>
+              </a>
+              <a href="#">
+                <i class="comment icon"></i>
                   {{ article.comments_num }}
                    comments
-                </a>
-              </div>
+              </a>
+
             </span>
           </div>
 
@@ -201,6 +212,7 @@
             <div class="ui error message">
 
             </div>
+            {% csrf_token %}
           </form>
       </div>
     </div>
