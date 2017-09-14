@@ -53,43 +53,43 @@
             </div>
           </div>
           {%if user%}
-          <a class="item button" href="/logout/" >
+          <a class="item button" href="{% url 'oneword:user_logout'%}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign out icon"></i>
               Logout
             <!-- </button> -->
           </a>
           {%else%}
-          <a class="item " href="/sign/" >
+          <a class="item " href="{% url 'oneword:user_sign'%}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign in icon"></i>
               Log in
             <!-- </button> -->
           </a>
-          <a href="/register/" class="ui item ">
+          <a href="{% url 'oneword:user_register'%}" class="ui item ">
             <button class="ui red button">Sign up</button></a>
           {%endif%}
         </div>
       </div>
     </div>
 
+    <div class="ui hidden divider">
+
+    </div>
     <!-- 个人基本信息 -->
-    <div class="ui four column doubling stackable grid container">
-      <div class="column">
-        <div class="ui card">
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        </div>
+    <div class="ui  container ">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <div class="ui  divider">
+
       </div>
-      <div class="column">
-        <div class="">
-          <h1>Article</h1>
-        </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+      <div class="ui  divider">
+
       </div>
-      <div class="column">
-        <div class="">
-          <h1>Article</h1>
-        </div>
-      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+
 
 
     </div>
