@@ -1,6 +1,8 @@
-from oneword.models import Article,Comment
+from oneword.models import Article,Comment,MyFavorite
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError,ObjectDoesNotExist
+
 
 
 # 返回文章列表接口
@@ -19,7 +21,6 @@ def allarticle(request):
 
 # 根据作者返回文章信息接口
 def get_article_author(request):
-    # title = request.POST.get("title",'')
     author = request.POST.get('author','')
 
     if author == '':
@@ -45,7 +46,6 @@ def get_article_title(request):
     if title == '':
         return JsonResponse({'status':10021,'message':'parameter error'})
 
-
     articles = Article.objects.filter(title__contains = title.lower())
     article_list=[]
     if articles:
@@ -59,24 +59,43 @@ def get_article_title(request):
         return JsonResponse({'status':200,'data':article_list,'message':'success'})
     return JsonResponse({'status':10022,'message':'No result'})
 
+# 喜欢文章接口
 def article_like(request):
-    if request.method == 'POST':
-        title = request.post.get('title','')
+    if request.method == 'GET':
+        id = request.GET.get('extra_id','')
+        username = request.session.get('user','')
 
-        if title == '':
+        if not username:
+            return JsonResponse({'status':10020,'message':'Please sign in first'})
+
+        if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
 
-        article = Article.objects.get(title=title)
-        article.article_likes += 1
+        # 添加收藏
+        article = Article.objects.get(id=id)
+        user = User.objects.get(username=username)
+        myfavorite = MyFavorite.objects.get(collector=user)
+        myfavorite.collection.add(article)
+        myfavorite.save()
+
+        # 增加点赞数
+        article.like += 1
         article.save()
 
+        return JsonResponse({'status':200,'article_id':article.id,'like':article.like,'message':'add like success'})
+
+    return JsonResponse({'status':10022,'message':'not GET method'})
+
+# 不喜欢文章接口
 def article_dislike(request):
-    if request.method == 'POST':
-        title = request.post.get('id','')
+    if request.method == 'GET':
+        id = request.GET.get('extra_id','')
 
-        if title == '':
+        if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
 
-        article = Article.objects.get(title=title)
-        article.article_dislikes += 1
+        article = Article.objects.get(id=id)
+        article.dislike += 1
         article.save()
+        return JsonResponse({'status':200,'article_id':article.id,'dislike':article.dislike,'message':'add dislike success'})
+    return JsonResponse({'status':10022,'message':'not GET method'})
