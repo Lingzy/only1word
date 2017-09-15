@@ -9,7 +9,7 @@ class Article(models.Model):
     title = models.CharField(blank=False,max_length=60)
     tag = models.CharField(blank=False,max_length=20)
     content = models.TextField(blank=False,max_length=150)
-    create_time = models.DateTimeField(auto_now=True)
+    create_time = models.DateTimeField(auto_now=False)
     like = models.IntegerField(default=0)
     dislike = models.IntegerField(default=0)
 
@@ -32,7 +32,7 @@ class Comment(models.Model):
 class MyFavorite(models.Model):
     collector = models.ForeignKey(User)
     collection = models.ManyToManyField(Article)
-    collect_time = models.DateTimeField(auto_now=True)
+    # collect_time = models.DateTimeField(auto_now=False)
 
     def __str__(self):
         return self.collector.username
