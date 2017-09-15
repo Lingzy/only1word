@@ -47,6 +47,11 @@ def register(request):
             user = authenticate(username=username,password=password)
 
             if user:
+                # 创建收藏
+                favorite = MyFavorite.objects.create(collector=user)
+                favorite.save()
+
+                # 登录网站
                 login(request,user)
                 request.session['user'] = username
                 return HttpResponseRedirect("/")
@@ -76,4 +81,3 @@ def change_pwd(request):
             return JsonResponse({'status':10025,'message':"Old password wrong"})
 
     return JsonResponse({'status':10021,'message':'parameter error'})
-
