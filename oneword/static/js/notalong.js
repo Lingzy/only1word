@@ -133,4 +133,28 @@ $(document).ready(function(){
       alert("Input title or author name to search");
     }
   });
+
+  $(".like").click(function(){
+    var id = $(this).parent('.extra.content').attr('extra_id');
+    $.get("/api/like/",{"extra_id":id},function(result){
+      if (result.status == 200) {
+        $('[extra_id='+ result.article_id +']').find('a.like').html(
+          "<i class='thumbs up icon'></i>"+result.like);
+        // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+      }
+    })
+  });
+
+  $(".dislike").click(function(){
+    var id = $(this).parent('.extra.content').attr('extra_id');
+    $.get("/api/dislike/",{"extra_id":id},function(result){
+      if (result.status == 200) {
+        $('[extra_id='+ result.article_id +']').find('a.dislike').html(
+          "<i class='thumbs down icon'></i>"+result.dislike);
+        // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+      }
+    })
+  });
+
+
 });
