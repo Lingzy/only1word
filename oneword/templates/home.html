@@ -110,20 +110,21 @@
             </div>
           </div>
           <!-- 标签状态 -->
-          <div class="extra content">
-            <a id="like">
-            <i class="thumbs outline up icon"></i>
-            {{article.article.like}}
+          <div class="extra content" extra_id="{{ article.article.id }}">
+            <!-- <meta name="csrf-token" content="{{ csrf_token }}"> -->
+            <a class="like">
+              <i class="thumbs outline up icon"> </i>
+              {{article.article.like}}
             </a>
-            <a id="dislike">
-            <i class="thumbs outline down icon"></i>
-            {{article.article.dislike}}
+            <a class="dislike">
+              <i class="thumbs outline down icon"></i>
+              {{article.article.dislike}}
             </a>
             <span class="right floated">
               <a id="favorite">
                 <i class="empty heart icon"></i>
               </a>
-              <a href="#">
+              <a >
                 <i class="comment icon"></i>
                   {{ article.comments_num }}
                    comments
@@ -216,6 +217,11 @@
           </form>
       </div>
     </div>
+    <script type="text/javascript">
+    $.ajaxSetup({
+    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
+    </script>
 
   </body>
 </html>
