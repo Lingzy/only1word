@@ -89,14 +89,14 @@ $(document).ready(function(){
     .tab()
   ;
 
-
+// 搜索文章
   $('.prompt').change(function(){
-    var strings = $(this).val();
+    var strings = $(this).val().replace(/\ +/g,"");
     var titlesearch=0;
     var authorsearch=0;
     if (strings){
       $('.card').hide();
-      $.post("/api/title_search/",{"title":strings},function(result){
+      $.get("/api/title_search/",{"title":strings},function(result){
         if (result.status == 200){
           // var id = result.data["id"];
           article = result.data;
@@ -107,11 +107,11 @@ $(document).ready(function(){
         else {
           titlesearch=1;
           if (titlesearch === 1 && authorsearch === 1){
-            alert("No result");
+            $('.empty.modal').modal('show');
           }
         }
       });
-      $.post("/api/author_search/",{"author":strings},function(result){
+      $.get("/api/author_search/",{"author":strings},function(result){
         if (result.status == 200){
           // var id = result.data["id"];
           article = result.data;
@@ -122,7 +122,7 @@ $(document).ready(function(){
         else {
           authorsearch=1;
           if (titlesearch === 1 && authorsearch === 1){
-            alert("No result");
+            $('.empty.modal').modal('show');
           }
         }
       });
@@ -130,7 +130,7 @@ $(document).ready(function(){
 
     else{
       $('.card').show();
-      alert("Input title or author name to search");
+      $('.nostring.modal').modal('show');
     }
   });
 
@@ -142,19 +142,39 @@ $(document).ready(function(){
           "<i class='thumbs up icon'></i>"+result.like);
         // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
       }
-    })
-  });
-
-  $(".dislike").click(function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
-    $.get("/api/dislike/",{"extra_id":id},function(result){
-      if (result.status == 200) {
-        $('[extra_id='+ result.article_id +']').find('a.dislike').html(
-          "<i class='thumbs down icon'></i>"+result.dislike);
-        // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+      if (result.status == 10020){
+        location.href="accounts/login/"
       }
     })
   });
 
+  $(".favorite").click(function(){
+    var id = $(this).parent('.extra.content').attr('extra_id');
+    $.get("/api/favorite/",{"extra_id":id},function(result){
+      if (result.status == 200) {
+        $('[extra_id='+ result.article_id +']').find('a.favorite').html(
+          "<i class='heart icon'></i>"+result.favorite);
+        // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+      }
+      if (result.status == 10020){
+        location.href="accounts/login/"
+      }
+    })
+  });
+
+  var my_articles = $(".my_article").length;
+  if (my_articles < 5){
+    $('.myarticle_arrow').hide()
+  }
+
+  var my_favorites = $(".my_favorite").length;
+  if (my_favorites < 5){
+    $('.myfavorite_arrow').hide()
+  }
+
+  var my_likes = $(".my_like").length;
+  if(my_likes < 5){
+    $('.mylike_arrow').hide()
+  }
 
 });
