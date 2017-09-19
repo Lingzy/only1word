@@ -16,13 +16,14 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from django.conf.urls import include
-from oneword import views
+from oneword import views,userinfo
 
 # from django.contrib.auth.views import login,logout
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$',views.home,name='home'),
+    url(r'^accounts/login/$', userinfo.sign),
     url(r'^popular/$', views.popular,name='popular'),
     url(r'^create/$', views.create),
     url(r'^test/$', views.test),
@@ -33,4 +34,3 @@ urlpatterns = [
 
     # url('^', include('django.contrib.auth.urls')),
 ]
-
