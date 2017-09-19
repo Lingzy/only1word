@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response,render
 
 from django.http import HttpResponseRedirect,HttpResponse
-from .models import Article,Comment,MyFavorite
+from .models import Article,Comment,MyFavorite,MyLike
 from django.http import JsonResponse
 
 from django.contrib.auth import authenticate,login,logout
@@ -43,13 +43,15 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+            password = form.cleaned_data['password1']
             user = authenticate(username=username,password=password)
 
             if user:
                 # 创建收藏
                 favorite = MyFavorite.objects.create(collector=user)
                 favorite.save()
+                like = MyLike.objects.create(collector=user)
+                like.save()
 
                 # 登录网站
                 login(request,user)
