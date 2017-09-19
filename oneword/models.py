@@ -11,7 +11,7 @@ class Article(models.Model):
     content = models.TextField(blank=False,max_length=150)
     create_time = models.DateTimeField(auto_now=False)
     like = models.IntegerField(default=0)
-    dislike = models.IntegerField(default=0)
+    favorite = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -23,7 +23,7 @@ class Comment(models.Model):
     comment = models.TextField(blank=False,max_length=150)
     create_time = models.DateTimeField(auto_now=True)
     like = models.IntegerField(default=0)
-    dislike = models.IntegerField(default=0)
+    favorite = models.IntegerField(default=0)
 
     def __str__(self):
         return self.article.title
@@ -32,7 +32,13 @@ class Comment(models.Model):
 class MyFavorite(models.Model):
     collector = models.ForeignKey(User)
     collection = models.ManyToManyField(Article)
-    # collect_time = models.DateTimeField(auto_now=False)
+
+    def __str__(self):
+        return self.collector.username
+
+class MyLike(models.Model):
+    collector = models.ForeignKey(User)
+    like = models.ManyToManyField(Article)
 
     def __str__(self):
         return self.collector.username
