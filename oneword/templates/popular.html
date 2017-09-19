@@ -28,9 +28,6 @@
         <a class="item" href="/">
           Home
         </a>
-        <a class="item">
-          Newest
-        </a>
         <a class="active item">
           Popular
         </a>
@@ -46,7 +43,7 @@
             </button>
           </div>
           {% if user %}
-          <a class="ui item">
+          <a class="ui item" href="{% url 'profiles'%}">
             <i class="user icon"></i>
             {{user|upper}}
           </a>
@@ -82,8 +79,11 @@
       </div>
     </div>
 
+    <div class="ui hidden divider  ">
+
+    </div>
     <!-- 文章主体 -->
-    <div class="ui container segment">
+    <div class="ui container ">
 
       <!-- 文章卡片组 -->
       <div class="ui four doubling stackable cards">
@@ -203,6 +203,35 @@
             </div>
           </form>
       </div>
+    </div>
+
+    <!-- 无数据搜索提示 -->
+    <div class="ui basic nostring modal">
+      <div class="ui icon header">
+        <i class="search icon"></i>
+        <h4>Input  author, title  or  tag  to  searche</h4>
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索内容为空 -->
+    <div class="ui basic empty modal">
+      <div class="ui icon header">
+        <i class="frown icon"></i>
+        Ops! EMPTY...try other key word
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
     </div>
 
   </body>
