@@ -28,9 +28,9 @@
         <a class="active item" href="{% url 'home' %}">
           Home
         </a>
-        <a class="item">
+        <!-- <a class="item">
           Newest
-        </a>
+        </a> -->
         <a class=" item" href="{% url 'popular' %}">
           Popular
         </a>
@@ -46,7 +46,7 @@
             </button>
           </div>
           {% if user %}
-          <a class="ui item">
+          <a class="ui item" href="{% url 'profiles'%}">
             <i class="user icon"></i>
             {{user|upper}}
           </a>
@@ -111,19 +111,59 @@
           </div>
           <!-- 标签状态 -->
           <div class="extra content" extra_id="{{ article.article.id }}">
-            <!-- <meta name="csrf-token" content="{{ csrf_token }}"> -->
-            <a class="like">
-              <i class="thumbs outline up icon"> </i>
-              {{article.article.like}}
-            </a>
-            <a class="dislike">
-              <i class="thumbs outline down icon"></i>
-              {{article.article.dislike}}
-            </a>
-            <span class="right floated">
-              <a id="favorite">
+
+            <!-- 判断用户是否登录 -->
+            {% if user %}
+              <!-- 判断用户是否已经喜欢该文章 -->
+              {% if likes %}
+                {% if article.article.title in likes %}
+                  <i class="thumbs  up icon"> </i>
+                  {{article.article.like}}
+                {% else %}
+                  <a class="like">
+                    <i class="thumbs outline up icon"> </i>
+                    {{article.article.like}}
+                  </a>
+                {%endif%}
+              {% else %}
+                <a class="like">
+                  <i class="thumbs outline up icon"> </i>
+                  {{article.article.like}}
+                </a>
+              {%endif%}
+
+              <!-- 判断用户是否已收藏该文章 -->
+              {% if collections %}
+                {% if article.article.title in collections %}
+                <!-- <div> -->
+                  <i class="heart icon"></i>
+                  {{article.article.favorite}}
+                <!-- </div> -->
+                {% else %}
+                  <a class="favorite">
+                    <i class="empty heart icon"></i>
+                    {{article.article.favorite}}
+                  </a>
+                {% endif %}
+              {% else %}
+              <a class="favorite">
                 <i class="empty heart icon"></i>
+                {{article.article.favorite}}
               </a>
+              {% endif %}
+            {% else %}
+              <a class="like">
+                <i class="thumbs outline up icon"> </i>
+                {{article.article.like}}
+              </a>
+              <a class="favorite">
+                <i class="empty heart icon"></i>
+                {{article.article.favorite}}
+              </a>
+            {%endif%}
+
+            <span class="right floated">
+
               <a >
                 <i class="comment icon"></i>
                   {{ article.comments_num }}
@@ -159,7 +199,6 @@
                       </div>
                     </div>
                     {%endfor%}
-
               </div>
 
               <!-- 添加评论form -->
@@ -217,11 +256,34 @@
           </form>
       </div>
     </div>
-    <script type="text/javascript">
-    $.ajaxSetup({
-    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-    });
-    </script>
 
+    <!-- 无数据搜索提示 -->
+    <div class="ui basic  nostring modal">
+      <div class="ui icon header">
+        <i class="search icon"></i>
+        <h4>Input  author, title  or  tag  to  searche</h4>
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索内容为空 -->
+    <div class="ui basic  empty modal">
+      <div class="ui icon header">
+        <i class="frown icon"></i>
+        Ops! EMPTY...try other key word
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
+    </div>
   </body>
 </html>
