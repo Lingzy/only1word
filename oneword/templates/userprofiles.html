@@ -19,9 +19,9 @@
         <a class="item" href="/">
           Home
         </a>
-        <a class="item">
+        <!-- <a class="item">
           Newest
-        </a>
+        </a> -->
         <a class="item" href="/popular/">
           Popular
         </a>
@@ -44,14 +44,14 @@
           {%endif%}
           <!-- <div class="ui compact menu"> -->
 
-          <div class="item">
+          <!-- <div class="item">
             <div class="ui search">
               <div class="ui icon input">
                 <input class="prompt" type="text" placeholder="Search title or author...">
                 <i class="search icon"></i>
               </div>
             </div>
-          </div>
+          </div> -->
           {%if user%}
           <a class="item button" href="{% url 'oneword:user_logout'%}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
@@ -83,155 +83,232 @@
         <i class="user icon"></i>
         My Profiles
       </h4>
-      <div class="ui four column grid">
-        <div class="column">
-
+      <div class="ui centered raised card">
+        <div class="image">
+          <img src="{% static "image/rachel.png"%}" alt="">
         </div>
-        <div class="column">
-          <div class="ui centered raised card">
-            <div class="image">
-              <img src="{% static "image/rachel.png"%}" alt="">
-            </div>
-            <div class="content">
-              <a href="#" class="header">Matin</a>
-            </div>
-            <div class="extra content">
-              <span class="left floated write">
-                <i class="file icon"></i>
-                23
-              </span>
-              <span class="right floated heart">
-                <i class="heart icon"></i>
-                45
-              </span>
-            </div>
-
-          </div>
+        <div class="content">
+          <a href="#" class="header">Matin</a>
         </div>
-        <div class="column">
-          <div class="ui centered raised card">
-            <a href="# " class="header" type="button">
-              <i class="unlock alternate icon"></i>
-              Change password
-            </a>
-          </div>
-        </div>
-        <div class="column">
-
-        </div>
+        <div class="extra content">
+          <span class="left floated write">
+            <i class="file icon"></i>
+            {{article_count}}
+          </span>
+          <span class="right floated heart">
+            <i class="heart icon"></i>
+            {{favorite_count}}
+          </span>
         </div>
 
+      </div>
 
-
-
-
+      <!-- 我的文章 -->
       <h4 class="ui horizontal divider header">
         <i class="paint brush icon"></i>
         My Article
       </h4>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-      </p>
+      {%if articles%}
+      <div class="ui grid">
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="myarticle_arrow">
+                <i class="chevron circle left icon"></i>
+              </a>
+            </h2>
+          </div>
+        </div>
+        <div class="fourteen wide column">
+          <div class="ui four column grid">
+            {% for article in articles %}
+            <div class="column my_article">
+              <div class="ui fluid raised card">
+                <div class="content">
+                  <a href="#" class="header">{{ article.title|capfirst}}</a>
+                  <div class="meta">
+                    <span class="date">{{article.create_time|date:"F j, Y"}} </span>
+                  </div>
+                  <div class="description">
+                    {{ article.content}}
+                  </div>
+                </div>
+                <div class="extra content">
+                  <span>
+                    <i class="empty heart icon"></i>
+                    {{article.favorite}}
+                  </span>
+                  <span class="right floated">
+                    <i class="thumbs outline up icon"></i>
+                    {{ article.like }}
+                  </span>
+                </div>
+              </div>
+            </div>
+           {%endfor%}
+         </div>
+       </div>
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="myarticle_arrow">
+                <i class="chevron circle right icon"></i>
+              </a>
+            </h2>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <h4 class="ui centered header">Ops! it is EMPTY here</h4>
+      {%endif%}
+
+      <!-- 我的收藏 -->
       <h4 class="ui horizontal divider header">
         <i class="heart icon"></i>
         My Favorite
       </h4>
-      <div class="ui container">
-        <!-- <div class="ui link cards"> -->
-          <div class="ui four column grid">
-            <div class="column">
-              <div class="ui fluid  raised card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid floated card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="column">
-              <div class="ui fluid card">
-                <div class="content">
-                  <a href="#" class="header">TestTitle</a>
-                  <div class="meta">
-                    <span class="date">July 23 2015 </span>
-                  </div>
-                  <div class="description">
-                    The first Article
-                  </div>
-                </div>
-              </div>
-            </div>
+      {%if favorite_articles %}
+      <div class="ui grid">
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="myfavorite_arrow">
+                <i class="chevron circle left icon"></i>
+              </a>
+            </h2>
           </div>
-        <!-- </div> -->
+        </div>
+        <div class="fourteen wide column">
+          <div class="ui four column grid">
+            {% for article in favorite_articles %}
+            <div class="column my_favorite">
+              <div class="ui fluid raised card">
+                <div class="content">
+                  <a href="#" class="header">{{ article.title|capfirst}}</a>
+                  <div class="meta">
+                    <span class="date">{{article.create_time|date:"F j, Y"}} </span>
+                  </div>
+                  <div class="description">
+                    {{ article.content}}
+                  </div>
+                </div>
+                <div class="extra content">
+                  <span>
+                    <i class="empty heart icon"></i>
+                    {{article.favorite}}
+                  </span>
+                  <span class="right floated">
+                    <i class="thumbs outline up icon"></i>
+                    {{ article.like }}
+                  </span>
+                </div>
+              </div>
+            </div>
+           {%endfor%}
+         </div>
+       </div>
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="myfavorite_arrow">
+                <i class="chevron circle right icon"></i>
+              </a>
+            </h2>
+          </div>
+        </div>
+      </div>
+      {%else%}
+      <h4 class="ui centered header">Ops! it ie EMPTY here</h4>
+      {%endif%}
+
+      <!-- 我喜欢的文章 -->
+      <h4 class="ui horizontal divider header">
+        <i class="thumbs up icon"></i>
+        My Like
+      </h4>
+      {%if like_articles %}
+      <div class="ui grid">
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="mylike_arrow">
+                <i class="chevron circle left icon"></i>
+              </a>
+            </h2>
+          </div>
+        </div>
+        <div class="fourteen wide column">
+          <div class="ui four column grid">
+            {% for article in like_articles %}
+            <div class="column my_like">
+              <div class="ui fluid raised card">
+                <div class="content">
+                  <a href="#" class="header">{{ article.title|capfirst}}</a>
+                  <div class="meta">
+                    <span class="date">{{article.create_time|date:"F j, Y"}} </span>
+                  </div>
+                  <div class="description">
+                    {{ article.content}}
+                  </div>
+                </div>
+                <div class="extra content">
+                  <span>
+                    <i class="empty heart icon"></i>
+                    {{article.favorite}}
+                  </span>
+                  <span class="right floated">
+                    <i class="thumbs outline up icon"></i>
+                    {{ article.like }}
+                  </span>
+                </div>
+              </div>
+            </div>
+           {%endfor%}
+         </div>
+       </div>
+        <div class="one wide column">
+          <div class="column">
+            <h2 class="ui icon small header">
+              <a href="" class="mylike_arrow">
+                <i class="chevron circle right icon"></i>
+              </a>
+            </h2>
+          </div>
+        </div>
+      </div>
+      {%else%}
+      <h4 class="ui centered header">Ops! it is EMPTY here</h4>
+      {%endif%}
+    </div>
+
+    <!-- 无数据搜索提示 -->
+    <div class="ui basic nostring modal">
+      <div class="ui icon header">
+        <i class="search icon"></i>
+        <h4>Input  author, title  or  tag  to  searche</h4>
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
       </div>
     </div>
+
+    <!-- 搜索内容为空 -->
+    <div class="ui basic empty modal">
+      <div class="ui icon header">
+        <i class="frown icon"></i>
+        Ops! EMPTY...try other key word
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
+    </div>
+
   </body>
 </html>
