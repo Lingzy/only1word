@@ -117,8 +117,10 @@
               <!-- 判断用户是否已经喜欢该文章 -->
               {% if likes %}
                 {% if article.article.title in likes %}
-                  <i class="thumbs  up icon"> </i>
-                  {{article.article.like}}
+                  <a class="dislike">
+                    <i class="thumbs  up icon"> </i>
+                    {{article.article.like}}
+                  </a>
                 {% else %}
                   <a class="like">
                     <i class="thumbs outline up icon"> </i>
@@ -135,10 +137,10 @@
               <!-- 判断用户是否已收藏该文章 -->
               {% if collections %}
                 {% if article.article.title in collections %}
-                <!-- <div> -->
+                <a class="unfavorite">
                   <i class="heart icon"></i>
                   {{article.article.favorite}}
-                <!-- </div> -->
+                </a>
                 {% else %}
                   <a class="favorite">
                     <i class="empty heart icon"></i>
