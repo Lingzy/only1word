@@ -179,7 +179,7 @@ $(document).ready(function(){
               if (result.status == 200) {
                 $('[extra_id='+ result.article_id +']').find('a.like').attr('class','dislike').html(
                   "<i class='thumbs up icon'></i>"+result.like);
-                // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+
               }
               if (result.status == 10020){
                 location.href="accounts/login/"
@@ -197,7 +197,6 @@ $(document).ready(function(){
               if (result.status == 200) {
                 $('[extra_id='+ result.article_id +']').find('a.dislike').attr('class','like').html(
                   "<i class='thumbs outline up icon'></i>"+result.like);
-                // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
               }
             }});
   });
@@ -210,6 +209,7 @@ $(document).ready(function(){
         $('[extra_id='+ result.article_id +']').find('a.favorite').attr('class','unfavorite').html(
           "<i class='heart icon'></i>"+result.favorite);
         // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+        location.reload();
       }
       if (result.status == 10020){
         location.href="accounts/login/"
