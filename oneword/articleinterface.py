@@ -81,15 +81,32 @@ def get_article_tag(request):
         return JsonResponse({'status':200,'data':article_list,'message':'success'})
     return JsonResponse({'status':10022,'message':'No result'})
 
-# 喜欢文章接口
 
+# 判断是否是自己的文章
+def my_own_article(request):
+    # if request.method == 'GET':
+    id = request.GET.get('id','')
+    username = request.GET.get('username','')
+
+    if id and username:
+        article = Article.objects.get(id=id)
+        if article.author.username == username.strip().lower():
+            return JsonResponse({'status':200,'message':'this is your own article'})
+        else:
+            return JsonResponse({'status':10022,'message':'this is not your article'})
+    else:
+        return JsonResponse({'status':10021,'message':'parameter error'})
+
+    # return JsonResponse({'status':10022,'message':'not GET method'})
+
+# 喜欢文章接口
 def article_like(request):
     if request.method == 'GET':
         id = request.GET.get('extra_id','')
         username = request.session.get('user','')
 
         if not username:
-            return JsonResponse({'status':10020,'message':'Please sign in first'})
+            return JsonResponse({'status':10021,'message':'Please sign in first'})
 
         if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
@@ -107,7 +124,7 @@ def article_like(request):
 
         return JsonResponse({'status':200,'article_id':article.id,'like':article.like,'message':'add like success'})
 
-    return JsonResponse({'status':10022,'message':'not GET method'})
+    return JsonResponse({'status':10023,'message':'not GET method'})
 
 # 取消喜欢
 def article_dislike(request):
@@ -116,25 +133,25 @@ def article_dislike(request):
         username = request.session.get('user','')
 
         if not username:
-            return JsonResponse({'status':10020,'message':'Please sign in first'})
+            return JsonResponse({'status':10021,'message':'Please sign in first'})
 
         if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
 
-        # 添加喜欢
+        # 去除喜欢
         article = Article.objects.get(id=id)
         user = User.objects.get(username=username)
         mylike = MyLike.objects.get(collector=user)
         mylike.like.remove(article)
         mylike.save()
 
-        # 增加点赞数
+        # 减少点赞数
         article.like -= 1
         article.save()
 
         return JsonResponse({'status':200,'article_id':article.id,'like':article.like,'message':' dislike success'})
 
-    return JsonResponse({'status':10022,'message':'not GET method'})
+    return JsonResponse({'status':10023,'message':'not GET method'})
 
 
 # 收藏文章接口
@@ -144,22 +161,25 @@ def article_favorite(request):
         username = request.session.get('user','')
 
         if not username:
-            return JsonResponse({'status':10020,'message':'Please sign in first'})
+            return JsonResponse({'status':10021,'message':'Please sign in first'})
 
         if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
 
         # 添加收藏
         article = Article.objects.get(id=id)
-        user = User.objects.get(username=username)
-        myfavorite = MyFavorite.objects.get(collector=user)
-        myfavorite.collection.add(article)
-        myfavorite.save()
-
-        article.favorite += 1
-        article.save()
-        return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
-    return JsonResponse({'status':10022,'message':'not GET method'})
+        if article.author.username != username:
+            user = User.objects.get(username=username)
+            myfavorite = MyFavorite.objects.get(collector=user)
+            myfavorite.collection.add(article)
+            myfavorite.save()
+            # 增加收藏数
+            article.favorite += 1
+            article.save()
+            return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+        else:
+            return JsonResponse({'status':10022,'message':'You DO NOT need to collect your own articles'})
+    return JsonResponse({'status':10023,'message':'not GET method'})
 
 # 取消收藏文章接口
 def article_unfavorite(request):
@@ -173,14 +193,17 @@ def article_unfavorite(request):
         if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
 
-        # 添加收藏
+        # 取消收藏
         article = Article.objects.get(id=id)
-        user = User.objects.get(username=username)
-        myfavorite = MyFavorite.objects.get(collector=user)
-        myfavorite.collection.remove(article)
-        myfavorite.save()
-
-        article.favorite -= 1
-        article.save()
-        return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+        if article.author.username != username:
+            user = User.objects.get(username=username)
+            myfavorite = MyFavorite.objects.get(collector=user)
+            myfavorite.collection.remove(article)
+            myfavorite.save()
+            # 减少收藏数
+            article.favorite -= 1
+            article.save()
+            return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+        else:
+            return JsonResponse({'status':10022,'message':'You do not need to collect your own articles'})
     return JsonResponse({'status':10022,'message':'not GET method'})
