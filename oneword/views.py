@@ -3,10 +3,11 @@ from django.shortcuts import render_to_response,render
 from django.http import HttpResponseRedirect,HttpResponse
 from .models import Article,Comment,MyFavorite,MyLike
 
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm,PasswordChangeForm
+
 
 import time
 from datetime import datetime
@@ -82,6 +83,14 @@ def popular(request):
         data['comments_num'] = len(article_comments)
         article_info.append(data)
 
+    if username:
+        favorite_collector = MyFavorite.objects.get(collector__username=username)
+        like_collector = MyLike.objects.get(collector__username=username)
+        collections = [article.title for article in favorite_collector.collection.all()]
+        likes = [article.title for article in like_collector.like.all() ]
+
+        return render(request, 'popular.html', {'article_info': article_info, 'user': username,'collections':collections,'likes':likes})
+
     return render(request,'popular.html',{'article_info':reversed(sorted(article_info,
                                                                          key=lambda comment:comment['comments_num'])),
                                           'user':username})
@@ -146,13 +155,15 @@ def add_comment(request):
 @login_required
 def userprofiles(request):
     username = request.session.get('user','')
+
     if username:
         user = User.objects.get(username=username)
         articles = Article.objects.filter(author__username = username)
+        comments = Comment.objects.filter(author__username = username)
         favorites = MyFavorite.objects.get(collector__username=username)
         likes = MyLike.objects.get(collector__username=username)
         favorite_articles = [article for article in favorites.collection.all()]
         like_articles = [article for article in likes.like.all()]
 
-    return render(request, 'userprofiles.html',{'articles':articles,'favorite_articles':favorite_articles,
+        return render(request, 'userprofiles2.html',{'articles':articles,'comments':comments,'favorite_articles':favorite_articles,
                 'like_articles':like_articles,'article_count':articles.count(),'favorite_count':len(favorite_articles)})
