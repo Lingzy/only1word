@@ -5,15 +5,12 @@
     <meta charset="utf-8">
     <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png">
     <link href="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.css" rel="stylesheet">
-
-    <!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.0.min.js"></script> -->
-
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.js"></script>
     <script src="{% static 'js/notalong.js' %}"></script>
-    <title>
-      Simple story</title>
-    <!-- <link rel="stylesheet" href="{% static 'css/semantic.css'%}"> -->
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/formverify.js' %}"></script>
+    <title>Simple story</title>
 
     <style media="screen">
       .title_error{
@@ -25,10 +22,13 @@
     <!-- 导航栏 -->
     <div class="ui borderless attached stackable  menu">
       <div class="ui container ">
-        <a class="item" href="/">
+        <a class=" item" href="{% url 'home' %}">
           Home
         </a>
-        <a class="active item">
+        <!-- <a class="item">
+          Newest
+        </a> -->
+        <a class=" active item" href="{% url 'popular' %}">
           Popular
         </a>
         <div class="right menu">
@@ -43,7 +43,7 @@
             </button>
           </div>
           {% if user %}
-          <a class="ui item" href="{% url 'profiles'%}">
+          <a class="ui item " id="login_user" href="{% url 'profiles'%}">
             <i class="user icon"></i>
             {{user|upper}}
           </a>
@@ -79,10 +79,10 @@
       </div>
     </div>
 
+    <!-- 文章主体 -->
     <div class="ui hidden divider  ">
 
     </div>
-    <!-- 文章主体 -->
     <div class="ui container ">
 
       <!-- 文章卡片组 -->
@@ -94,9 +94,10 @@
           <!-- 正文 -->
           <div class="article content" id="{{ article.article.id }}">
             <div class="header" >{{ article.article.title|capfirst}}</div>
+
             <div class="meta">
               #{{article.article.tag}}|
-              {{article.article.create_time|date:"F j, Y" }}
+              {{article.article.create_time|date:"M j, Y" }}
               <span class="right floated">
                 <i>{{article.article.author|capfirst}}</i>
               </span>
@@ -106,18 +107,48 @@
             </div>
           </div>
           <!-- 标签状态 -->
-          <div class="extra content">
-            <a href="#">
-            <i class="thumbs outline up icon"></i>
-            </a>
-            <span class="right floated">
-              <div class="ui dropdown">
-                <a href="#">
-                  <i class="comment icon"></i>
-                  {{ article.comments_num }}
-                   comments
+          <div class="extra content" extra_id="{{ article.article.id }}">
+
+            <!-- 判断用户是否登录 -->
+            {% if user %}
+              <!-- 判断用户是否已收藏该文章 -->
+              {% if collections %}
+                {% if article.article.title in collections %}
+                <a class="unfavorite">
+                  <i class="heart icon"></i>
+                  {{article.article.favorite}}
                 </a>
-              </div>
+                {% else %}
+                  <a class="favorite">
+                    <i class="empty heart icon"></i>
+                    {{article.article.favorite}}
+                  </a>
+                {% endif %}
+              {% else %}
+              <a class="favorite">
+                <i class="empty heart icon"></i>
+                {{article.article.favorite}}
+              </a>
+              {% endif %}
+            {% else %}
+              <a class="like">
+                <i class="thumbs outline up icon"> </i>
+                {{article.article.like}}
+              </a>
+              <a class="favorite">
+                <i class="empty heart icon"></i>
+                {{article.article.favorite}}
+              </a>
+            {%endif%}
+
+            <span class="right floated">
+
+              <a >
+                <i class="comment icon"></i>
+                  {{ article.comments_num }}
+                   
+              </a>
+
             </span>
           </div>
 
@@ -147,17 +178,16 @@
                       </div>
                     </div>
                     {%endfor%}
-
               </div>
 
               <!-- 添加评论form -->
 
               <form class="ui reply form" action="/add_comment/" method="post">
                 <div class="article_title" style="display:none;">
-                  <input type="text" name="article_title" value="{{article.title}}">
+                  <input type="text" name="article_title" value="{{article.article.title}}">
                 </div>
                 <div class="field">
-                  <textarea name="follow_content"></textarea>
+                  <textarea name="comment_content"></textarea>
                 </div>
 
                 <button class="ui primary submit labeled icon button" type="submit" >
@@ -201,12 +231,13 @@
             <div class="ui error message">
 
             </div>
+            {% csrf_token %}
           </form>
       </div>
     </div>
 
     <!-- 无数据搜索提示 -->
-    <div class="ui basic nostring modal">
+    <div class="ui basic  nostring modal">
       <div class="ui icon header">
         <i class="search icon"></i>
         <h4>Input  author, title  or  tag  to  searche</h4>
@@ -220,7 +251,7 @@
     </div>
 
     <!-- 搜索内容为空 -->
-    <div class="ui basic empty modal">
+    <div class="ui basic  empty modal">
       <div class="ui icon header">
         <i class="frown icon"></i>
         Ops! EMPTY...try other key word
@@ -233,6 +264,5 @@
       </div>
     </div>
     </div>
-
   </body>
 </html>

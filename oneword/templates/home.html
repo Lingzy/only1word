@@ -5,15 +5,12 @@
     <meta charset="utf-8">
     <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png">
     <link href="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.css" rel="stylesheet">
-
-    <!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.0.min.js"></script> -->
-
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <script src="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.js"></script>
     <script src="{% static 'js/notalong.js' %}"></script>
-    <title>
-      Simple story</title>
-    <!-- <link rel="stylesheet" href="{% static 'css/semantic.css'%}"> -->
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/formverify.js' %}"></script>
+    <title>Simple story</title>
 
     <style media="screen">
       .title_error{
@@ -46,7 +43,7 @@
             </button>
           </div>
           {% if user %}
-          <a class="ui item" href="{% url 'profiles'%}">
+          <a class="ui item " id="login_user" href="{% url 'profiles'%}">
             <i class="user icon"></i>
             {{user|upper}}
           </a>
@@ -100,7 +97,7 @@
 
             <div class="meta">
               #{{article.article.tag}}|
-              {{article.article.create_time|date:"F j, Y" }}
+              {{article.article.create_time|date:"M j, Y" }}
               <span class="right floated">
                 <i>{{article.article.author|capfirst}}</i>
               </span>
@@ -114,25 +111,6 @@
 
             <!-- 判断用户是否登录 -->
             {% if user %}
-              <!-- 判断用户是否已经喜欢该文章 -->
-              {% if likes %}
-                {% if article.article.title in likes %}
-                  <a class="dislike">
-                    <i class="thumbs  up icon"> </i>
-                    {{article.article.like}}
-                  </a>
-                {% else %}
-                  <a class="like">
-                    <i class="thumbs outline up icon"> </i>
-                    {{article.article.like}}
-                  </a>
-                {%endif%}
-              {% else %}
-                <a class="like">
-                  <i class="thumbs outline up icon"> </i>
-                  {{article.article.like}}
-                </a>
-              {%endif%}
 
               <!-- 判断用户是否已收藏该文章 -->
               {% if collections %}
@@ -169,7 +147,6 @@
               <a >
                 <i class="comment icon"></i>
                   {{ article.comments_num }}
-                   comments
               </a>
 
             </span>
