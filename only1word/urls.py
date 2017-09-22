@@ -22,6 +22,7 @@ from oneword import views,userinfo
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^users/', include('django.contrib.auth.urls')),
     url(r'^$',views.home,name='home'),
     url(r'^accounts/login/$', userinfo.sign),
     url(r'^popular/$', views.popular,name='popular'),

@@ -14,37 +14,26 @@ from datetime import datetime
 
 # Create your views here.
 def test(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-            user = authenticate(username=username,password=password)
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect("/")
-        else:
-            return render_to_response("test.html",{'form':form})
-    else:
-        form = AuthenticationForm()
-    return render_to_response("test.html", {
-        'form': form,
-    })
+    request_data=[]
+    for i in request.META:
+        data={}
+        data[i]=request.META[i]
+        request_data.append(data)
+    return render(request, 'test.html',{'request_data':request_data})
+
 
 
 # 默认按照最新时间排序
 def home(request):
+    # 获取所有文章，评论
     articles = Article.objects.all().order_by("-create_time")
     comments = Comment.objects.all()
 
     article_info = []
     username = request.session.get('user', '')
 
-
-
     for article in articles:
-        article_comments = [{'comment': comment.comment, 'author': comment.author.username, 'time': comment.create_time}
-                            for comment in comments if comment.article.title == article.title]
+        article_comments = article.comment_set.all()
         data = {}
         data['article'] = article
         data['article_comments'] = article_comments
@@ -53,16 +42,15 @@ def home(request):
 
     if username:
         favorite_collector = MyFavorite.objects.get(collector__username=username)
-        like_collector = MyLike.objects.get(collector__username=username)
+
         collections = [article.title for article in favorite_collector.collection.all()]
-        likes = [article.title for article in like_collector.like.all() ]
 
 
-        return render(request, 'home.html', {'article_info': article_info, 'user': username,'collections':collections,'likes':likes})
+        return render(request, 'home.html', {'article_info': article_info, 'collections':collections,})
 
         # return render(request, 'home.html', {'article_info': article_info, 'user': username})
 
-    return render(request, 'home.html', {'article_info': article_info, 'user': username})
+    return render(request, 'home.html', {'article_info': article_info, })
 
 
 # 按照评论数进行排序
@@ -75,8 +63,7 @@ def popular(request):
     username = request.session.get('user','')
 
     for article in articles:
-        article_comments = [{'comment':comment.comment,'author':comment.author.username,'time':comment.create_time}
-                            for comment in comments if comment.article.title == article.title]
+        article_comments = article.comment_set.all()
         data = {}
         data['article'] = article
         data['article_comments'] = article_comments
@@ -85,11 +72,11 @@ def popular(request):
 
     if username:
         favorite_collector = MyFavorite.objects.get(collector__username=username)
-        like_collector = MyLike.objects.get(collector__username=username)
-        collections = [article.title for article in favorite_collector.collection.all()]
-        likes = [article.title for article in like_collector.like.all() ]
 
-        return render(request, 'popular.html', {'article_info': article_info, 'user': username,'collections':collections,'likes':likes})
+        collections = [article.title for article in favorite_collector.collection.all()]
+
+
+        return render(request, 'popular.html', {'article_info': article_info, 'user': username,'collections':collections})
 
     return render(request,'popular.html',{'article_info':reversed(sorted(article_info,
                                                                          key=lambda comment:comment['comments_num'])),
@@ -154,16 +141,47 @@ def add_comment(request):
 # 用户信息
 @login_required
 def userprofiles(request):
-    username = request.session.get('user','')
 
-    if username:
-        user = User.objects.get(username=username)
-        articles = Article.objects.filter(author__username = username)
-        comments = Comment.objects.filter(author__username = username)
-        favorites = MyFavorite.objects.get(collector__username=username)
-        likes = MyLike.objects.get(collector__username=username)
-        favorite_articles = [article for article in favorites.collection.all()]
-        like_articles = [article for article in likes.like.all()]
+    username = request.session.get('user', '')
+    user = User.objects.get(username=username)
 
-        return render(request, 'userprofiles2.html',{'articles':articles,'comments':comments,'favorite_articles':favorite_articles,
-                'like_articles':like_articles,'article_count':articles.count(),'favorite_count':len(favorite_articles)})
+    articles = Article.objects.filter(author=user)
+    comments = Comment.objects.filter(author=user)
+    myfavorites = MyFavorite.objects.filter(collector=user)
+
+    my_article = []
+    my_favorite = []
+    my_comment = []
+
+
+    if articles:
+        for article in articles:
+            article_comments = article.comment_set.all()
+            data = {}
+            data['article'] = article
+            data['article_comments'] = article_comments
+            data['comments_num'] = len(article_comments)
+            my_article.append(data)
+
+    if comments:
+        for comment in comments:
+            data = {}
+            data['article'] = comment.article
+            data['article_comments'] =comment.article.comment_set.all()
+            data['comments_num'] = len(comment.article.comment_set.all())
+            my_comment.append(data)
+
+    if myfavorites:
+        for favorite in myfavorites:
+            for article in favorite.collection.all():
+                data={}
+                data['article'] = article
+                data['article_comments'] = article.comment_set.all()
+                data['comments_num'] = len(article.comment_set.all())
+                my_favorite.append(data)
+
+
+
+    return render(request, 'userprofiles2.html', {'user': username,'my_article': my_article, 'my_favorite':my_favorite,'my_comment':my_comment})
+
+        # return render(request, 'home.html', {'article_info': article_info, 'user': username})

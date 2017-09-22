@@ -4,10 +4,10 @@ from django.http import HttpResponseRedirect,HttpResponse
 from .models import Article,Comment,MyFavorite,MyLike
 from django.http import JsonResponse
 
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm,PasswordChangeForm
 
 
 # 用户登录
@@ -55,31 +55,32 @@ def register(request):
 
                 # 登录网站
                 login(request,user)
-                request.session['user'] = username
+                # request.session['user'] = username
                 return HttpResponseRedirect("/")
     else:
         form = UserCreationForm()
-    return render(request,"register.html", {
-        'form': form,
-    })
+    return render(request,"register.html", {'form': form,})
 
 
 # 用户修改密码
 @login_required()
 def change_pwd(request):
     if request.method == 'POST':
-        old_pwd = request.POST.get('old_pwd','')
-        new_pwd = request.POST.get('new_pwd','')
-        username = request.session.get('username','')
+        old_password = request.POST.get('old_password','')
+        new_password1 = request.POST.get('new_password1','')
+        new_password2 = request.POST.get('new_password2','')
 
-        user = authenticate(username=username,password=old_pwd)
+        username = request.user.username
+        user = authenticate(username=username,password=old_password)
+        if not user:
+            return JsonResponse({'status':10021,'message':'Old password invalid'})
 
-        if user:
-            user = User.objects.get(username = username)
-            user.password = new_pwd
-            user.save()
-            return JsonResponse({'status':200,'message':'password changed success'})
-        else:
-            return JsonResponse({'status':10025,'message':"Old password wrong"})
+        form = PasswordChangeForm(request.user,data=request.POST)
 
-    return JsonResponse({'status':10021,'message':'parameter error'})
+        if form.is_valid():
+            form.save()
+            # user = form.user()
+            # update_session_auth_hash(request, user)
+            return JsonResponse({'status':200,'message':'change password success'})
+
+    return JsonResponse({'status':10023,'message':'please use post method'})

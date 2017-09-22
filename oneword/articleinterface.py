@@ -8,57 +8,65 @@ from django.core.exceptions import ValidationError,ObjectDoesNotExist
 
 # 返回文章列表接口
 def allarticle(request):
-    article_list=[]
-    all_article = Article.objects.all()
-    for article in all_article:
-        data = {}
-        data['author'] = article.author.username
-        data['title'] = article.title
-        data['tag'] = article.tag
-        article_list.append(data)
 
-    return JsonResponse({'status':200,'article_list':article_list,'message':'success'})
+    if request.method == 'GET':
+        article_list=[]
+        all_article = Article.objects.all()
+        for article in all_article:
+            data = {}
+            data['author'] = article.author.username
+            data['title'] = article.title
+            data['tag'] = article.tag
+            article_list.append(data)
+
+        return JsonResponse({'status':200,'article_list':article_list,'message':'success'})
+    return JsonResponse({'status':10023,'message':'Please use GET method'})
 
 
 # 根据作者返回文章信息接口
 def get_article_author(request):
-    author = request.GET.get('author','')
 
-    if author == '':
-        return JsonResponse({'status':10021,'message':'parameter error'})
+    if request.method == 'GET':
+        author = request.GET.get('author','')
 
-    articles = Article.objects.filter(author__username = author.lower())
-    article_list=[]
-    if articles:
-        for article in articles:
-            data = {}
-            data['title'] = article.title
-            data['tag'] = article.tag
-            data['id'] = article.id
-            article_list.append(data)
-        return JsonResponse({'status':200,'data':article_list,'author':author,'message':'success'})
-    return JsonResponse({'status':10022,'message':'No result'})
+        if author == '':
+            return JsonResponse({'status':10021,'message':'parameter error'})
+
+        articles = Article.objects.filter(author__username = author.lower())
+        article_list=[]
+        if articles:
+            for article in articles:
+                data = {}
+                data['title'] = article.title
+                data['tag'] = article.tag
+                data['id'] = article.id
+                article_list.append(data)
+            return JsonResponse({'status':200,'data':article_list,'author':author,'message':'success'})
+        return JsonResponse({'status':10022,'message':'No result'})
+    return JsonResponse({'status':10023,'message':'Please use GET method'})
 
 # 根据文章名称返回文章信息
 def get_article_title(request):
 
-    title = request.GET.get('title','')
+    if request.method == 'GET':
+        title = request.GET.get('title','')
 
-    if title == '':
-        return JsonResponse({'status':10021,'message':'parameter error'})
+        if title == '':
+            return JsonResponse({'status':10021,'message':'parameter error'})
 
-    articles = Article.objects.filter(title__contains = title.lower())
-    article_list=[]
-    if articles:
-        for article in articles:
-            data={}
-            data['title'] = article.title
-            data['author'] = article.author.username
-            data['tag'] = article.tag
-            data['id'] = article.id
-            article_list.append(data)
-        return JsonResponse({'status':200,'data':article_list,'message':'success'})
-    return JsonResponse({'status':10022,'message':'No result'})
+        articles = Article.objects.filter(title__contains = title.lower())
+        article_list=[]
+        if articles:
+            for article in articles:
+                data={}
+                data['title'] = article.title
+                data['author'] = article.author.username
+                data['tag'] = article.tag
+                data['id'] = article.id
+                article_list.append(data)
+            return JsonResponse({'status':200,'data':article_list,'message':'success'})
+        return JsonResponse({'status':10022,'message':'No result'})
+    return JsonResponse({'status':10023,'message':'Please use GET method'})
 
 # 根据文章tag返回文章信息
 def get_article_tag(request):
@@ -83,84 +91,32 @@ def get_article_tag(request):
 
 
 # 判断是否是自己的文章
+@login_required
 def my_own_article(request):
-    # if request.method == 'GET':
-    id = request.GET.get('id','')
-    username = request.GET.get('username','')
+    if request.method == 'GET':
+        id = request.GET.get('id','')
+        user = request.user
 
-    if id and username:
-        article = Article.objects.get(id=id)
-        if article.author.username == username.strip().lower():
-            return JsonResponse({'status':200,'message':'this is your own article'})
+        if id and user:
+            article = Article.objects.get(id=id)
+            if article.author == user:
+                return JsonResponse({'status':200,'message':'this is your own article'})
+            else:
+                return JsonResponse({'status':10022,'message':'this is not your article'})
         else:
-            return JsonResponse({'status':10022,'message':'this is not your article'})
-    else:
-        return JsonResponse({'status':10021,'message':'parameter error'})
-
-    # return JsonResponse({'status':10022,'message':'not GET method'})
-
-# 喜欢文章接口
-def article_like(request):
-    if request.method == 'GET':
-        id = request.GET.get('extra_id','')
-        username = request.session.get('user','')
-
-        if not username:
-            return JsonResponse({'status':10021,'message':'Please sign in first'})
-
-        if id == '':
             return JsonResponse({'status':10021,'message':'parameter error'})
-
-        # 添加喜欢
-        article = Article.objects.get(id=id)
-        user = User.objects.get(username=username)
-        mylike = MyLike.objects.get(collector=user)
-        mylike.like.add(article)
-        mylike.save()
-
-        # 增加点赞数
-        article.like += 1
-        article.save()
-
-        return JsonResponse({'status':200,'article_id':article.id,'like':article.like,'message':'add like success'})
-
-    return JsonResponse({'status':10023,'message':'not GET method'})
-
-# 取消喜欢
-def article_dislike(request):
-    if request.method == 'GET':
-        id = request.GET.get('extra_id','')
-        username = request.session.get('user','')
-
-        if not username:
-            return JsonResponse({'status':10021,'message':'Please sign in first'})
-
-        if id == '':
-            return JsonResponse({'status':10021,'message':'parameter error'})
-
-        # 去除喜欢
-        article = Article.objects.get(id=id)
-        user = User.objects.get(username=username)
-        mylike = MyLike.objects.get(collector=user)
-        mylike.like.remove(article)
-        mylike.save()
-
-        # 减少点赞数
-        article.like -= 1
-        article.save()
-
-        return JsonResponse({'status':200,'article_id':article.id,'like':article.like,'message':' dislike success'})
 
     return JsonResponse({'status':10023,'message':'not GET method'})
 
 
 # 收藏文章接口
+@login_required
 def article_favorite(request):
     if request.method == 'GET':
         id = request.GET.get('extra_id','')
-        username = request.session.get('user','')
+        user = request.user
 
-        if not username:
+        if not user:
             return JsonResponse({'status':10021,'message':'Please sign in first'})
 
         if id == '':
@@ -168,26 +124,30 @@ def article_favorite(request):
 
         # 添加收藏
         article = Article.objects.get(id=id)
-        if article.author.username != username:
-            user = User.objects.get(username=username)
+        if article.author != user:
+            # user = User.objects.get(username=username)
             myfavorite = MyFavorite.objects.get(collector=user)
-            myfavorite.collection.add(article)
-            myfavorite.save()
-            # 增加收藏数
-            article.favorite += 1
-            article.save()
-            return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+            if article not in myfavorite.collection.all():
+                myfavorite.collection.add(article)
+                myfavorite.save()
+                # 增加收藏数
+                article.favorite += 1
+                article.save()
+                return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+            return JsonResponse({'status':10024,'message':'you have collected this article'})
         else:
             return JsonResponse({'status':10022,'message':'You DO NOT need to collect your own articles'})
+
     return JsonResponse({'status':10023,'message':'not GET method'})
 
 # 取消收藏文章接口
+@login_required
 def article_unfavorite(request):
     if request.method == 'GET':
         id = request.GET.get('extra_id','')
-        username = request.session.get('user','')
+        user = request.user
 
-        if not username:
+        if not user:
             return JsonResponse({'status':10020,'message':'Please sign in first'})
 
         if id == '':
@@ -195,8 +155,8 @@ def article_unfavorite(request):
 
         # 取消收藏
         article = Article.objects.get(id=id)
-        if article.author.username != username:
-            user = User.objects.get(username=username)
+        if article.author != user:
+            # user = User.objects.get(username=username)
             myfavorite = MyFavorite.objects.get(collector=user)
             myfavorite.collection.remove(article)
             myfavorite.save()
@@ -206,4 +166,4 @@ def article_unfavorite(request):
             return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
         else:
             return JsonResponse({'status':10022,'message':'You do not need to collect your own articles'})
-    return JsonResponse({'status':10022,'message':'not GET method'})
+    return JsonResponse({'status':10023,'message':'not GET method'})

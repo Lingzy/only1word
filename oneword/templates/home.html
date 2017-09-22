@@ -3,13 +3,14 @@
   <head>
     {% load staticfiles %}
     <meta charset="utf-8">
-    <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png">
-    <link href="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.css" rel="stylesheet">
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.js"></script>
+    <!-- <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png"> -->
+    <link href="{% static 'css/semantic.min.css'%}" rel="stylesheet">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/semantic.min.js'%}"></script>
     <script src="{% static 'js/notalong.js' %}"></script>
     <script src="{% static 'js/search.js' %}"></script>
     <script src="{% static 'js/formverify.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.goup.min.js' %}"></script>
     <title>Simple story</title>
 
     <style media="screen">
@@ -42,10 +43,10 @@
               <!-- </i> -->
             </button>
           </div>
-          {% if user %}
+          {% if user.is_authenticated %}
           <a class="ui item " id="login_user" href="{% url 'profiles'%}">
             <i class="user icon"></i>
-            {{user|upper}}
+            {{user.username |upper}}
           </a>
           {%endif%}
           <!-- <div class="ui compact menu"> -->
@@ -58,7 +59,7 @@
               </div>
             </div>
           </div>
-          {%if user%}
+          {%if user.is_authenticated %}
           <a class="item button" href="{% url 'oneword:user_logout' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign out icon"></i>
@@ -83,10 +84,16 @@
     <div class="ui hidden divider  ">
 
     </div>
-    <div class="ui container ">
+    <div class="ui container " id="allarticlekks">
+      <!-- <div class="right ui rail">
+        <div class="ui sticky" style="left: 1356.5px;">
+          <h3 class="ui header">TOP</h3>
+          <i class="heart icon"></i>
+        </div>
+      </div> -->
 
       <!-- 文章卡片组 -->
-      <div class="ui four doubling stackable cards">
+      <div class="ui four  doubling stackable cards">
         {% for article in article_info %}
 
         <!-- 单一文章 -->
@@ -110,12 +117,12 @@
           <div class="extra content" extra_id="{{ article.article.id }}">
 
             <!-- 判断用户是否登录 -->
-            {% if user %}
+            {% if user.is_authenticated %}
 
               <!-- 判断用户是否已收藏该文章 -->
               {% if collections %}
                 {% if article.article.title in collections %}
-                <a class="unfavorite">
+                <a class="favorite">
                   <i class="heart icon"></i>
                   {{article.article.favorite}}
                 </a>
@@ -132,10 +139,6 @@
               </a>
               {% endif %}
             {% else %}
-              <a class="like">
-                <i class="thumbs outline up icon"> </i>
-                {{article.article.like}}
-              </a>
               <a class="favorite">
                 <i class="empty heart icon"></i>
                 {{article.article.favorite}}
@@ -170,7 +173,7 @@
                       <div class="content">
                         <a class="author">{{i.author}}</a>
                         <div class="metadata">
-                          <span class="date">{{i.time}}</span>
+                          <span class="date">{{i.create_time}}</span>
                         </div>
                         <div class="text">
                           {{i.comment}}
@@ -189,12 +192,10 @@
                 <div class="field">
                   <textarea name="comment_content"></textarea>
                 </div>
-
-                <button class="ui primary submit labeled icon button" type="submit" >
-                  <i class="icon edit" ></i> Add Comment
+                <button class="ui primary submit  add_comment_btn button" type="submit" >
+                Add Comment
                 </button>
                 <div class="ui error message">
-
                 </div>
                 {% csrf_token %}
               </form>
@@ -216,7 +217,11 @@
             <div class="field">
               <label>Title</label>
               <input type="text" name="title" id="article_title" placeholder="input the title" value="">
-              <p class="title_error">This title has been used,change another one</p>
+            </div>
+            <div class="title_error">
+              <ul>
+                <li>This title has been used, use another one</li>
+              </ul>
             </div>
             <div class="field">
               <label>Tags</label>
@@ -229,7 +234,6 @@
             </div>
             <button class="ui submit button " type="submit" id="create_button">Create</button>
             <div class="ui error message">
-
             </div>
             {% csrf_token %}
           </form>

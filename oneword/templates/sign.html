@@ -10,13 +10,10 @@
   <body>
     <div class="ui attached borderless stackable menu">
       <div class="ui container">
-        <a class="item active">
+        <a class="item active" href="{% url 'home'%}">
           Home
         </a>
-        <a class="item">
-          Newest
-        </a>
-        <a class="item">
+        <a class="item" href="{% url 'popular'%}">
           Popular
         </a>
         <div class="right menu">
@@ -32,15 +29,15 @@
     </div>
     <div class="ui centered floated card">
       <h1 class="ui inverted centered blue header segment">Log in</h1>
-      <div class="ui container segment">
+      <div class="ui container  aligned segment ">
         <form class="ui form" action="{% url 'oneword:user_sign' %}" method="post">
           {{form.as_p}}
-          <button class="ui red button" type="submit" >
-            Sign
+          <button class="ui red fluid button" type="submit" >
+            <h3>Sign</h3>
           </button>
           <div class="ui divider">
           </div>
-          <a href="{% url 'oneword:user_register' %}" class="ui blue button">No account? Sign up!</a>
+          <a href="{% url 'oneword:user_register' %}" >No account? Sign up!</a>
           {% csrf_token %}
         </form>
 

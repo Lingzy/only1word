@@ -5,21 +5,8 @@ $(document).ready(function(){
   // 点击文章显示文章与评论区modal
   $('.article').click(function(){
     var id = $(this).attr("id");
-    var username = $("#login_user").text().replace(/[ \r\n]/g,"");
-      $.ajax({url:"/api/myownarticle/",
-              data:{"id":id,
-                    "username":username},
-              async:false,
-              success:function(result){
-                if (result.status == 200) {
-                  alert("Sorry,you CAN NOT comment on your own articles");
-                  // return false;
-                }
-                else {
-                  $('[article_id='+ id +']').modal('show');
-                }
-              }
-            });
+    $('[article_id='+ id +']').modal('show');
+
   });
 
  // 创建文章modal显示
@@ -30,7 +17,7 @@ $(document).ready(function(){
   // 判断文章title是否重复
   $('#article_title').blur(function(){
     var title = $(this).val();
-    $.post("/api/title_search/",{"title":title},function(result){
+    $.get("/api/title_search/",{"title":title},function(result){
       if (result.status == 200){
         $(".title_error").show();
         $("#create_button").attr("disabled",true);
@@ -42,65 +29,80 @@ $(document).ready(function(){
     })
   });
 
-  // 添加喜欢文章
-  $(".like").click(function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
-    $.ajax({url:"/api/like/",
-            data:{"extra_id":id},
-            async:false,
-            success:function(result){
-              if (result.status == 200) {
-                $('[extra_id='+ result.article_id +']').find('a.like').attr('class','dislike').html(
-                  "<i class='thumbs up icon'></i>"+result.like);
-
-              }
-              if (result.status == 10020){
-                location.href="accounts/login/"
-              }
-            }});
-  });
-
-  // 取消喜欢文章
-  $(".dislike").click(function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
-    $.ajax({url:"/api/dislike/",
-            data:{"extra_id":id},
-            async:false,
-            success:function(result){
-              if (result.status == 200) {
-                $('[extra_id='+ result.article_id +']').find('a.dislike').attr('class','like').html(
-                  "<i class='thumbs outline up icon'></i>"+result.like);
-              }
-            }});
-  });
-
   // 添加收藏文章
-  $(".favorite").click(function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
-    $.get("/api/favorite/",{"extra_id":id},function(result){
-      if (result.status == 200) {
-        $('[extra_id='+ result.article_id +']').find('a.favorite').attr('class','unfavorite').html(
-          "<i class='heart icon'></i>"+result.favorite);
-        // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
-        location.reload();
-      }
+  $(".favorite").toggle(
 
+    function(){
+    var id = $(this).parent('.extra.content').attr('extra_id');
+    $.ajax({
+      url:"/api/favorite/",
+      data:{"extra_id":id},
+      async:false,
+      success:function(result){
+      if (result.status == 200) {
+        $('[extra_id='+ result.article_id +']').find('a.favorite').html("<i class='heart icon'></i>"+result.favorite);
+        return false;
+      }
+      else if (result.status === 10022 ) {
+        alert("Eh,You DO NOT need to collect your own articles");
+        return false;
+      }
+      else if (result.status === 10024){
+        alert("you have collected this article");
+        return false;
+      }
       if (result.status == 10020){
-        location.href="accounts/login/"
+        location.href="accounts/login/";
       }
-    })
-  });
-
-  // 取消收藏文章
-  $(".unfavorite").click(function(){
+    }});
+  },
+  function(){
     var id = $(this).parent('.extra.content').attr('extra_id');
-    $.get("/api/unfavorite/",{"extra_id":id},function(result){
+    $.ajax({
+      url:"/api/unfavorite/",
+      data:{"extra_id":id},
+      async:false,
+      success:function(result){
       if (result.status == 200) {
-        $('[extra_id='+ result.article_id +']').find('a.unfavorite').attr('class','favorite').html(
+        $('[extra_id='+ result.article_id +']').find('a.favorite').html(
           "<i class='empty heart icon'></i>"+result.favorite);
         // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
       }
-    })
+      else if (result.status === 10022 ) {
+        alert("somthing wrong");
+        return false;
+      }
+      if (result.status == 10020){
+        location.href="accounts/login/";
+      }
+    }});
+  }
+);
+
+  // 取消收藏文章
+  // $(".unfavorite").bind("click",function(){
+  //   var id = $(this).parent('.extra.content').attr('extra_id');
+  //   $.get("/api/unfavorite/",{"extra_id":id},function(result){
+  //     if (result.status == 200) {
+  //       $('[extra_id='+ result.article_id +']').find('a.unfavorite').attr('class','favorite').html(
+  //         "<i class='empty heart icon'></i>"+result.favorite);
+  //       // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
+  //     }
+  //     else if (result.status === 10022 ) {
+  //       alert("somthing wrong");
+  //     }
+  //     if (result.status == 10020){
+  //       location.href="accounts/login/";
+  //     }
+  //   })
+  // });
+
+  $.goup({
+      trigger: 100,
+      bottomOffset: 50,
+      locationOffset: 280,
+      title: 'TOP',
+      titleAsText: true
   });
 
 });
