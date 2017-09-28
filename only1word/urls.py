@@ -28,10 +28,8 @@ urlpatterns = [
     url(r'^popular/$', views.popular,name='popular'),
     url(r'^create/$', views.create),
     url(r'^test/$', views.userprofiles),
-    # url(r'^newar/$', views.newar),
     url(r'^add_comment/$', views.add_comment),
     url(r'^api/', include('oneword.urls',namespace='oneword')),
     url(r'^profiles/$', views.userprofiles,name='profiles'),
 
-    # url('^', include('django.contrib.auth.urls')),
 ]
