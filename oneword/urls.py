@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^register/',userinfo.register,name='user_register'),
     url(r'^logout/',userinfo.userlogout,name='user_logout'),
     url(r'^changepwd/',userinfo.change_pwd,name='changepwd'),
+    url(r'^test_tab', articleinterface.test_tab),
 ]

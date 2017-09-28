@@ -1,12 +1,13 @@
 from django.shortcuts import render_to_response,render
 
-from django.http import HttpResponseRedirect,HttpResponse
+from django.http import HttpResponseRedirect,HttpResponse, HttpRequest,Http404
 from .models import Article,Comment,MyFavorite,MyLike
 
 from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm,PasswordChangeForm
+from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 
 
 import time
@@ -30,7 +31,7 @@ def home(request):
     comments = Comment.objects.all()
 
     article_info = []
-    username = request.session.get('user', '')
+    user = request.user
 
     for article in articles:
         article_comments = article.comment_set.all()
@@ -40,8 +41,8 @@ def home(request):
         data['comments_num'] = len(article_comments)
         article_info.append(data)
 
-    if username:
-        favorite_collector = MyFavorite.objects.get(collector__username=username)
+    if user:
+        favorite_collector = MyFavorite.objects.get(collector=user)
 
         collections = [article.title for article in favorite_collector.collection.all()]
 
@@ -60,7 +61,7 @@ def popular(request):
 
     # comments = Comment.objects.all()
     article_info = []
-    username = request.session.get('user','')
+    user = request.user
 
     for article in articles:
         article_comments = article.comment_set.all()
@@ -70,17 +71,15 @@ def popular(request):
         data['comments_num'] = len(article_comments)
         article_info.append(data)
 
-    if username:
-        favorite_collector = MyFavorite.objects.get(collector__username=username)
+    if user:
+        favorites = MyFavorite.objects.get(collector=user)
 
-        collections = [article.title for article in favorite_collector.collection.all()]
+        collections = [article.title for article in favorites.collection.all()]
 
 
-        return render(request, 'popular.html', {'article_info': article_info, 'user': username,'collections':collections})
+        return render(request, 'popular.html', {'article_info':reversed(sorted(article_info,key=lambda comment:comment['comments_num'])), 'collections':collections})
 
-    return render(request,'popular.html',{'article_info':reversed(sorted(article_info,
-                                                                         key=lambda comment:comment['comments_num'])),
-                                          'user':username})
+    return render(request,'popular.html',{'article_info':sorted(article_info,key=lambda comment:comment['comments_num'])})
 
 
 # 创建新文章
@@ -121,7 +120,7 @@ def add_comment(request):
         content = request.POST.get('comment_content','')
 
         if not author_name:
-            return HttpResponseRedirect('/api/sign/')
+            return HttpResponseRedirec('/api/sign/')
 
         # if not follow_content
 
@@ -132,7 +131,7 @@ def add_comment(request):
             comment = Comment.objects.create(author=author, article=article, comment=content, create_time=create_time)
             comment.save()
 
-            return HttpResponseRedirect('/')
+            return HttpResponseRedirect()
         return HttpResponse('wrong'+'title'+str(article_title)+str(content))
 
 
@@ -142,19 +141,20 @@ def add_comment(request):
 @login_required
 def userprofiles(request):
 
-    username = request.session.get('user', '')
-    user = User.objects.get(username=username)
+    user = request.user
 
     articles = Article.objects.filter(author=user)
     comments = Comment.objects.filter(author=user)
-    myfavorites = MyFavorite.objects.filter(collector=user)
+    myfavorites = MyFavorite.objects.get(collector=user)
 
     my_article = []
     my_favorite = []
     my_comment = []
+    collections=[]
 
 
     if articles:
+
         for article in articles:
             article_comments = article.comment_set.all()
             data = {}
@@ -162,6 +162,7 @@ def userprofiles(request):
             data['article_comments'] = article_comments
             data['comments_num'] = len(article_comments)
             my_article.append(data)
+
 
     if comments:
         for comment in comments:
@@ -171,17 +172,16 @@ def userprofiles(request):
             data['comments_num'] = len(comment.article.comment_set.all())
             my_comment.append(data)
 
+
     if myfavorites:
-        for favorite in myfavorites:
-            for article in favorite.collection.all():
-                data={}
-                data['article'] = article
-                data['article_comments'] = article.comment_set.all()
-                data['comments_num'] = len(article.comment_set.all())
-                my_favorite.append(data)
+        for article in myfavorites.collection.all():
+            data={}
+            data['article'] = article
+            data['article_comments'] = article.comment_set.all()
+            data['comments_num'] = len(article.comment_set.all())
+            my_favorite.append(data)
+            collections.append(article.title)
 
-
-
-    return render(request, 'userprofiles2.html', {'user': username,'my_article': my_article, 'my_favorite':my_favorite,'my_comment':my_comment})
+    return render(request, 'userprofiles.html', {'my_article': my_article, 'my_favorite':my_favorite,'my_comment':my_comment,'collections':collections})
 
         # return render(request, 'home.html', {'article_info': article_info, 'user': username})

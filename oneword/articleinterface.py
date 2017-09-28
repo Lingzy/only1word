@@ -124,19 +124,17 @@ def article_favorite(request):
 
         # 添加收藏
         article = Article.objects.get(id=id)
-        if article.author != user:
+
             # user = User.objects.get(username=username)
-            myfavorite = MyFavorite.objects.get(collector=user)
-            if article not in myfavorite.collection.all():
-                myfavorite.collection.add(article)
-                myfavorite.save()
+        myfavorite = MyFavorite.objects.get(collector=user)
+        if article not in myfavorite.collection.all():
+            myfavorite.collection.add(article)
+            myfavorite.save()
                 # 增加收藏数
-                article.favorite += 1
-                article.save()
-                return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
-            return JsonResponse({'status':10024,'message':'you have collected this article'})
-        else:
-            return JsonResponse({'status':10022,'message':'You DO NOT need to collect your own articles'})
+            article.favorite += 1
+            article.save()
+            return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
+        return JsonResponse({'status':10024,'message':'you have collected this article'})
 
     return JsonResponse({'status':10023,'message':'not GET method'})
 
@@ -155,9 +153,10 @@ def article_unfavorite(request):
 
         # 取消收藏
         article = Article.objects.get(id=id)
-        if article.author != user:
+
             # user = User.objects.get(username=username)
-            myfavorite = MyFavorite.objects.get(collector=user)
+        myfavorite = MyFavorite.objects.get(collector=user)
+        if article in myfavorite.collection.all():
             myfavorite.collection.remove(article)
             myfavorite.save()
             # 减少收藏数
@@ -165,5 +164,19 @@ def article_unfavorite(request):
             article.save()
             return JsonResponse({'status':200,'article_id':article.id,'favorite':article.favorite,'message':'add dislike success'})
         else:
-            return JsonResponse({'status':10022,'message':'You do not need to collect your own articles'})
+            return JsonResponse({'status':10022,'message':'You have not collect this article yet'})
     return JsonResponse({'status':10023,'message':'not GET method'})
+
+# test api
+def test_tab(request):
+    if request.method == 'GET':
+        users = User.objects.all()
+        user_data=[]
+
+        for user in users:
+            data = {}
+            data['username'] = user.username
+            data['userid'] = user.id
+            user_data.append(data)
+        return JsonResponse({'status':200,'msg':'success','data':user_data})
+    return JsonResponse({'status':10021,'msg':'API failed'})

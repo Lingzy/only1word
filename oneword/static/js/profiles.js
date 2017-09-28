@@ -2,11 +2,13 @@ $(document).ready(function(){
 
   // 隐藏用户old_password错误信息
   $('.old_password_error').hide();
+  /*
   // 用户详情页如果文章少于5个则隐藏上下页按钮
-  var my_articles = $(".my_article").length;
-  if (my_articles < 5){
-    $('.myarticle_arrow').hide();
-  }
+  // var my_articles = $(".my_article").length;
+  // if (my_articles < 5){
+  //   $('.myarticle_arrow').hide();
+  // }
+  */
 
   var my_favorites = $(".my_favorite").length;
   if (my_favorites < 5){
@@ -107,5 +109,22 @@ $(document).ready(function(){
     // $('.ui.message').hide();
     $('.old_password_error').hide();
     $('#confirm_change_btn').attr("disabled",false);
-  })
+  });
+
+  $('.myarticle').click(function(){
+    var id = $(this).attr("myarticle_id");
+    $('[myarticle_md_id='+ id +']').modal('show');
+  });
+
+  $('.myfavorite').click(function(){
+    var id = $(this).attr("myfavorite_id");
+    $('[myfavorite_md_id='+ id +']').modal('show');
+  });
+
+  $('.mycomment').click(function(){
+    var id = $(this).attr("mycomment_id");
+    $('[mycomment_md_id='+ id +']').modal('show');
+  });
+
+
 })

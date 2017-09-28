@@ -30,22 +30,21 @@ $(document).ready(function(){
   });
 
   // 添加收藏文章
-  $(".favorite").toggle(
-
-    function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
+  $(".extra.content").on("click","a.favorite",function(){
+    var id = $(this).parent(".extra.content").attr('extra_id');
     $.ajax({
       url:"/api/favorite/",
       data:{"extra_id":id},
       async:false,
       success:function(result){
       if (result.status == 200) {
-        $('[extra_id='+ result.article_id +']').find('a.favorite').html("<i class='heart icon'></i>"+result.favorite);
-        return false;
+        $('[extra_id='+ result.article_id +']').find('a.favorite').attr("class","unfavorite");
+        // $(this).addClass('unfavorite').removeClass('favorite');
+        $('[extra_id='+ result.article_id +']').find('a.unfavorite').html("<i class='heart icon'></i>"+result.favorite);
+
       }
       else if (result.status === 10022 ) {
         alert("Eh,You DO NOT need to collect your own articles");
-        return false;
       }
       else if (result.status === 10024){
         alert("you have collected this article");
@@ -55,48 +54,44 @@ $(document).ready(function(){
         location.href="accounts/login/";
       }
     }});
-  },
-  function(){
-    var id = $(this).parent('.extra.content').attr('extra_id');
+  });
+
+  // 取消收藏文章
+  $(".extra.content").on("click","a.unfavorite",function(){
+    var id = $(this).parent(".extra.content").attr('extra_id');
     $.ajax({
       url:"/api/unfavorite/",
       data:{"extra_id":id},
       async:false,
       success:function(result){
-      if (result.status == 200) {
-        $('[extra_id='+ result.article_id +']').find('a.favorite').html(
-          "<i class='empty heart icon'></i>"+result.favorite);
+        if (result.status == 200) {
+          $('[extra_id='+ result.article_id +']').find('a.unfavorite').attr("class","favorite");
+          // $(this).addClass('favorite').removeClass('unfavorite');
+          $('[extra_id='+ result.article_id +']').find('a.favorite').html("<i class='empty heart icon'></i>"+result.favorite);
+
         // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
-      }
-      else if (result.status === 10022 ) {
-        alert("somthing wrong");
-        return false;
-      }
-      if (result.status == 10020){
-        location.href="accounts/login/";
-      }
-    }});
-  }
-);
+        }
+        else if (result.status === 10022 ) {
+          alert("somthing wrong");
+        }
+        if (result.status == 10020){
+          location.href="accounts/login/";
+        }
+      }}
+    );
+  });
 
-  // 取消收藏文章
-  // $(".unfavorite").bind("click",function(){
-  //   var id = $(this).parent('.extra.content').attr('extra_id');
-  //   $.get("/api/unfavorite/",{"extra_id":id},function(result){
-  //     if (result.status == 200) {
-  //       $('[extra_id='+ result.article_id +']').find('a.unfavorite').attr('class','favorite').html(
-  //         "<i class='empty heart icon'></i>"+result.favorite);
-  //       // $('[extra_id='+ result.id +']').find('i.up').attr("class","thumbs up icon");
-  //     }
-  //     else if (result.status === 10022 ) {
-  //       alert("somthing wrong");
-  //     }
-  //     if (result.status == 10020){
-  //       location.href="accounts/login/";
-  //     }
-  //   })
-  // });
+  // 聚焦用户名输入框时隐藏错误提示信息
+  $("#id_username").focus(function(){
+    $(".errorlist").hide();
+  });
 
+  // 修改密码
+  $('.special.card .image').dimmer({
+    on:'hover'
+  });
+
+  
   $.goup({
       trigger: 100,
       bottomOffset: 50,
@@ -104,5 +99,7 @@ $(document).ready(function(){
       title: 'TOP',
       titleAsText: true
   });
+
+
 
 });
