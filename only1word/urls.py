@@ -26,9 +26,7 @@ urlpatterns = [
     url(r'^$',views.home,name='home'),
     url(r'^accounts/login/$', userinfo.sign),
     url(r'^popular/$', views.popular,name='popular'),
-    url(r'^create/$', views.create),
     url(r'^test/$', views.userprofiles),
-    url(r'^add_comment/$', views.add_comment),
     url(r'^api/', include('oneword.urls',namespace='oneword')),
     url(r'^profiles/$', views.userprofiles,name='profiles'),
 

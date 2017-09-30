@@ -1,15 +1,10 @@
 from django.shortcuts import render_to_response,render
-
 from django.http import HttpResponseRedirect,HttpResponse, HttpRequest,Http404
 from .models import Article,Comment,MyFavorite,MyLike
-
 from django.contrib.auth import authenticate,login,logout,update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm,PasswordChangeForm
-from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
-
-
 import time
 from datetime import datetime
 
@@ -26,30 +21,27 @@ def test(request):
 
 # 默认按照最新时间排序
 def home(request):
-    # 获取所有文章，评论
+    # 获取所有文章，评论，按文章创建时间倒序排列
     articles = Article.objects.all().order_by("-create_time")
     comments = Comment.objects.all()
 
     article_info = []
     user = request.user
 
+    # 获取文章评论
     for article in articles:
         article_comments = article.comment_set.all()
         data = {}
         data['article'] = article
         data['article_comments'] = article_comments
-        data['comments_num'] = len(article_comments)
+        # data['comments_num'] = len(article_comments)
         article_info.append(data)
 
-    if user:
+    # 如果用户登录，返回用户的收藏夹数据，否则不返回
+    if user.username:
         favorite_collector = MyFavorite.objects.get(collector=user)
-
         collections = [article.title for article in favorite_collector.collection.all()]
-
-
         return render(request, 'home.html', {'article_info': article_info, 'collections':collections,})
-
-        # return render(request, 'home.html', {'article_info': article_info, 'user': username})
 
     return render(request, 'home.html', {'article_info': article_info, })
 
@@ -59,7 +51,6 @@ def popular(request):
     articles = Article.objects.all()
     comments = Comment.objects.all()
 
-    # comments = Comment.objects.all()
     article_info = []
     user = request.user
 
@@ -71,70 +62,13 @@ def popular(request):
         data['comments_num'] = len(article_comments)
         article_info.append(data)
 
-    if user:
+    if user.username:
         favorites = MyFavorite.objects.get(collector=user)
-
         collections = [article.title for article in favorites.collection.all()]
-
-
+        # 按评论数倒序排列，并添加用户收藏夹数据
         return render(request, 'popular.html', {'article_info':reversed(sorted(article_info,key=lambda comment:comment['comments_num'])), 'collections':collections})
-
+    # 按评论数倒序排列
     return render(request,'popular.html',{'article_info':sorted(article_info,key=lambda comment:comment['comments_num'])})
-
-
-# 创建新文章
-@login_required
-def create(request):
-    """
-    创建新文章
-    """
-    if request.method == 'POST':
-        author_name = request.session.get('user','')
-        title = request.POST.get('title','')
-        tags = request.POST.get('tags','')
-        content = request.POST.get('newcontent','')
-
-        # 检查输入内容是否齐全
-        if author_name and title and tags and content:
-            # 检查文章标题是否重复
-            if not Article.objects.filter(title=title):
-                user = User.objects.get(username=author_name)
-                now = datetime.fromtimestamp(time.time())
-                new_article = Article.objects.create(author=user,title=title.lower(),tag=tags.lower(),content = content,create_time=now)
-                new_article.save()
-
-                return HttpResponseRedirect('/')
-            message = 'Please change the title, it has been used'
-            return HttpResponse(message)
-
-        return HttpResponseRedirect('/')
-
-
-# 添加评论
-@login_required
-def add_comment(request):
-
-    if request.method == 'POST':
-        author_name = request.session.get('user','')
-        article_title = request.POST.get('article_title','')
-        content = request.POST.get('comment_content','')
-
-        if not author_name:
-            return HttpResponseRedirec('/api/sign/')
-
-        # if not follow_content
-
-        if article_title and content:
-            author = User.objects.get(username=author_name)
-            article = Article.objects.get(title=article_title.lower())
-            create_time = datetime.fromtimestamp(time.time())
-            comment = Comment.objects.create(author=author, article=article, comment=content, create_time=create_time)
-            comment.save()
-
-            return HttpResponseRedirect()
-        return HttpResponse('wrong'+'title'+str(article_title)+str(content))
-
-
 
 
 # 用户信息

@@ -17,7 +17,7 @@ $(document).ready(function(){
   // 判断文章title是否重复
   $('#article_title').blur(function(){
     var title = $(this).val();
-    $.get("/api/title_search/",{"title":title},function(result){
+    $.get("/api/is_title_used/",{"title":title},function(result){
       if (result.status == 200){
         $(".title_error").show();
         $("#create_button").attr("disabled",true);
@@ -28,6 +28,29 @@ $(document).ready(function(){
       }
     })
   });
+
+  // 创建新文章
+  $('#create_button').bind("click",function(){
+    var title = $("[name='title']").val();
+    var tags = $("[name='tags']").val();
+    var content = $("[name='newcontent']").val();
+
+    $.ajax({url:"/api/create_article/",
+          type:'post',
+          data:{'title':title,'tags':tags,'content':content},
+          async:false,
+          function(result){
+            if (result.status === 200){
+              alert('create success')
+              location.href("/");
+              return false;
+            }
+            else {
+              alert('creat wrong' + result.status);
+              return false;
+            }
+          }})
+  })
 
   // 添加收藏文章
   $(".extra.content").on("click","a.favorite",function(){
@@ -91,7 +114,7 @@ $(document).ready(function(){
     on:'hover'
   });
 
-  
+  // 返回顶部插件
   $.goup({
       trigger: 100,
       bottomOffset: 50,
@@ -99,7 +122,6 @@ $(document).ready(function(){
       title: 'TOP',
       titleAsText: true
   });
-
 
 
 });

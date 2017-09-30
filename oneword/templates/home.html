@@ -11,6 +11,11 @@
     <script src="{% static 'js/search.js' %}"></script>
     <script src="{% static 'js/formverify.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.goup.min.js' %}"></script>
+    <script type="text/javascript">
+    $.ajaxSetup({
+      data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
+    </script>
     <title>Simple story</title>
 
     <style media="screen">
@@ -85,12 +90,6 @@
 
     </div>
     <div class="ui container " id="allarticlekks">
-      <!-- <div class="right ui rail">
-        <div class="ui sticky" style="left: 1356.5px;">
-          <h3 class="ui header">TOP</h3>
-          <i class="heart icon"></i>
-        </div>
-      </div> -->
 
       <!-- 文章卡片组 -->
       <div class="ui four  doubling stackable cards">
@@ -144,10 +143,10 @@
                 {{article.article.favorite}}
               </a>
             {%endif%}
-            
+
               <a >
                 <i class="comment icon"></i>
-                  {{ article.comments_num }}
+                  {{ article.article_comments|length }}
               </a>
 
           </div>
@@ -210,7 +209,7 @@
       <div class="ui container segment">
           <a name="createnew"></a>
           <h3 class="ui inverted blue centered segment header">CREATE NEW</h3>
-          <form class="ui form" action="/create/" method="post">
+          <form class="ui form"  method="post">
             <div class="field">
               <label>Title</label>
               <input type="text" name="title" id="article_title" placeholder="input the title" value="">
@@ -229,7 +228,7 @@
               <textarea name="newcontent" cols="5"></textarea>
               <!-- <input type="text" name="newcontent" placeholder="input you article,less than 140 characters" value=""> -->
             </div>
-            <button class="ui submit button " type="submit" id="create_button">Create</button>
+            <button class="ui primary button " type="submit" id="create_button">Create</button>
             <div class="ui error message">
             </div>
             {% csrf_token %}

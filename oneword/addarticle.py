@@ -13,7 +13,8 @@ for i in range(100):
     author = random.choice(users)
     title = "Test {0} article".format(i)
     tag = random.choice(tags)
-    content = "This is a test article, NO.{0}".format(i)
+
+    content = ("This is a test article, NO.{0}".format(i)) * random.choice(range(10))
     create_time = datetime.fromtimestamp(time.time())
 
     Article.objects.create(author=author,title=title,tag=tag,content=content,create_time=create_time)

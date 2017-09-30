@@ -3,47 +3,51 @@
   <head>
     {% load staticfiles %}
     <meta charset="utf-8">
-    <title>My Profiles</title>
-    <link href="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.css" rel="stylesheet">
-    <!-- <link href="{% static 'css/font-awesome.min.css'%}" rel="stylesheet"> -->
-    <!-- <script src="https://use.fontawesome.com/c65bf87d98.js"></script> -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/c65bf87d98.css">
-
-    <!-- <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.0.min.js"></script> -->
-
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/semantic-ui/2.2.11/semantic.min.js"></script>
+    <!-- <link rel="icon" sizes="128x128" href="https://ssl.gstatic.com/keep/icon_128.png"> -->
+    <!-- <link href="{% static 'css/semantic.min.css'%}" rel="stylesheet"> -->
+    <link href="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.css" rel="stylesheet">
+    <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+    <!-- <script src="{% static 'js/semantic.min.js'%}"></script> -->
+    <script src="https://cdn.bootcss.com/semantic-ui/2.2.13/semantic.min.js"></script>
     <script src="{% static 'js/notalong.js' %}"></script>
-    <script src="{% static 'js/profiles.js' %}"></script>
-    <script type="text/javascript" src="{% static "js/profiles.js"%}"></script>
-    <script type="text/javascript">
-
-    $(document).ready(function(){
-      $('#context .menu .item')
-      .tab();
-
-      $('#context .menu .item').click(function(){
-        var tab_id = $(this).attr('data-tab');
-        // 同级aitem
-        // 本身active
-        // location.reload();
-      })
-    })
-
+    <script src="{% static 'js/search.js' %}"></script>
+    <script src="{% static 'js/formverify.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.goup.min.js' %}"></script>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.js"></script>
+    <script src="{% static 'js/stroll.min.js'%}">
+      
     </script>
+    <title>Simple story</title>
+
+    <style media="screen">
+      .title_error{
+        color: red;
+      }
+      .grid-item {
+        float: left;
+
+        border: 2px solid hsla(0, 0%, 0%, 0.5);
+      }
+      .grid-sizer,
+      .grid-item {
+        width: 19%;
+      }
+      .gutter-sizer {
+        width: 7%;
+      }
+    </style>
   </head>
   <body>
-    <!-- 目录 -->
-
+    <!-- 导航栏 -->
     <div class="ui borderless attached stackable  menu">
       <div class="ui container ">
-        <a class="item" href="/">
+        <a class="active item" href="{% url 'home' %}">
           Home
         </a>
         <!-- <a class="item">
           Newest
         </a> -->
-        <a class="item" href="/popular/">
+        <a class=" item" href="{% url 'popular' %}">
           Popular
         </a>
         <div class="right menu">
@@ -58,456 +62,232 @@
             </button>
           </div>
           {% if user.is_authenticated %}
-          <a class="ui item username">
+          <a class="ui item " id="login_user" href="{% url 'profiles'%}">
             <i class="user icon"></i>
-            {{user.username|upper}}
+            {{user.username |upper}}
           </a>
           {%endif%}
+          <!-- <div class="ui compact menu"> -->
+
+          <div class="item">
+            <div class="ui search">
+              <div class="ui icon input">
+                <input class="prompt" type="text" placeholder="Search title or author...">
+                <i class="search icon"></i>
+              </div>
+            </div>
+          </div>
           {%if user.is_authenticated %}
-          <a class="item button" href="{% url 'oneword:user_logout'%}" >
+          <a class="item button" href="{% url 'oneword:user_logout' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign out icon"></i>
               Logout
             <!-- </button> -->
           </a>
           {%else%}
-          <a class="item " href="{% url 'oneword:user_sign'%}" >
+          <a class="item " href="{% url 'oneword:user_sign' %}" >
             <!-- <button class="ui logout button" type="submit" name="button"> -->
               <i class="sign in icon"></i>
               Log in
             <!-- </button> -->
           </a>
-          <a href="{% url 'oneword:user_register'%}" class="ui item ">
+          <a href="{% url 'oneword:user_register' %}" class="ui item ">
             <button class="ui red button">Sign up</button></a>
           {%endif%}
         </div>
       </div>
     </div>
 
-    <div class="ui hidden divider">
+    <!-- 文章主体 -->
+    <div class="ui hidden divider  ">
 
     </div>
+    <div class="ui container " id="allarticlekks">
+      <!-- <div class="right ui rail">
+        <div class="ui sticky" style="left: 1356.5px;">
+          <h3 class="ui header">TOP</h3>
+          <i class="heart icon"></i>
+        </div>
+      </div> -->
 
-    <!-- 个人基本信息 -->
-    <div class="ui  container ">
-      <div class="ui hidden divider">
+      <!-- 文章卡片组 -->
+      <!-- <div class="ui four  doubling stackable cards"> -->
+      <div class="gridcard">
 
-      </div>
-      <div class="ui centered special raised card">
-        <div class="blurring dimmable image">
-          <div class="ui dimmer">
+
+        {% for article in article_info %}
+
+        <!-- 单一文章 -->
+        <div class="grid-sizer"></div>
+        <div class="gutter-sizer"></div>
+        <div class="ui raised card grid-item">
+          <!-- 正文 -->
+          <div class="article content" id="{{ article.article.id }}">
+            <div class="header" >{{ article.article.title|capfirst}}</div>
+
+            <div class="meta">
+              #{{article.article.tag}}|
+              {{article.article.create_time|date:"M j, Y" }}
+              <span class="right floated">
+                <i>{{article.article.author|capfirst}}</i>
+              </span>
+            </div>
+            <div class="description">
+              {{ article.article.content  }}
+            </div>
+          </div>
+          <!-- 标签状态 -->
+          <div class="extra content" extra_id="{{ article.article.id }}" id="container">
+
+            <!-- 判断用户是否登录 -->
+            {% if user.is_authenticated %}
+
+              <!-- 判断用户是否已收藏该文章 -->
+              {% if collections %}
+                {% if article.article.title in collections %}
+                <a class="unfavorite">
+                  <i class="heart icon"></i>
+                  {{article.article.favorite}}
+                </a>
+                {% else %}
+                  <a class="favorite">
+                    <i class="empty heart icon"></i>
+                    {{article.article.favorite}}
+                  </a>
+                {% endif %}
+              {% else %}
+              <a class="favorite">
+                <i class="empty heart icon"></i>
+                {{article.article.favorite}}
+              </a>
+              {% endif %}
+            {% else %}
+              <a class="favorite">
+                <i class="empty heart icon"></i>
+                {{article.article.favorite}}
+              </a>
+            {%endif%}
+
+              <a >
+                <i class="comment icon"></i>
+                  {{ article.comments_num }}
+              </a>
+
+          </div>
+
+          <!-- comments评论区modal -->
+          <div article_id="{{article.article.id}}" class="ui tiny modal">
+            <div class="header">
+              {{article.article.title|capfirst}}
+            </div>
             <div class="content">
-              <div class="center">
-                <div class="ui primary button " id="changepwd_btn">
-                  Change Password
-                </div>
+              <p>{{article.article.content}}</p>
+            </div>
+            <div class="ui container padded segment">
+              <div class="ui comments">
+                    {%for i in article.article_comments%}
+                    <div class="comment">
+                      <a class="avatar">
+                        <img src="{%static 'image/elliot.jpg'%}" alt="">
+                      </a>
+                      <div class="content">
+                        <a class="author">{{i.author}}</a>
+                        <div class="metadata">
+                          <span class="date">{{i.create_time}}</span>
+                        </div>
+                        <div class="text">
+                          {{i.comment}}
+                        </div>
+                      </div>
+                    </div>
+                    {%endfor%}
               </div>
+
+              <!-- 添加评论form -->
+
+              <form class="ui reply form" action="/add_comment/" method="post">
+                <div class="article_title" style="display:none;">
+                  <input type="text" name="article_title" value="{{article.article.title}}">
+                </div>
+                <div class="field">
+                  <textarea name="comment_content"></textarea>
+                </div>
+                <button class="ui primary submit  add_comment_btn button" type="submit" >
+                Add Comment
+                </button>
+                <div class="ui error message">
+                </div>
+                {% csrf_token %}
+              </form>
             </div>
           </div>
-          <img src="{% static "image/rachel.png"%}" alt="">
-        </div>
-        <div class="content">
-          <a href="#" class="header">Matin</a>
-        </div>
-        <div class="extra content">
-
-            <i class="file icon"></i>
-            {{my_article|length}}
-
-            <i class="heart icon"></i>
-            {{my_favorite|length}}
-
-            <i class="comment icon"></i>
-            {{my_comment|length}}
 
         </div>
+        {% endfor %}
+      <!-- </div> -->
       </div>
     </div>
 
-      <!-- 我的文章 -->
-    <div class="ui hidden divider">
 
-    </div>
-      <!-- 我的文章 -->
-    <div class="ui container" id="context">
-
-      <div class="ui three item secondary menu">
-        <a class="item active " data-tab="article">MY Articles</a>
-        <a class="item " data-tab="favorite">MY Favorites</a>
-        <a class="item " data-tab="comment">MY Comments</a>
-      </div>
-
-      <div class="ui divider">
-
-      </div>
-
-      <div class="ui active tab  " data-tab="article">
-        {%if my_article %}
-        <div class="ui grid">
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-          <div class="fourteen wide column">
-            <div class="ui four column grid">
-              {% for article in my_article %}
-              <div class="column my_article">
-                <div class="ui raised link fluid card">
-                  <!-- 正文 -->
-                  <div class="content myarticle" myarticle_id="{{ article.article.id }}">
-                    <div class="header" >{{ article.article.title|capfirst}}</div>
-                    <div class="meta">
-                      #{{article.article.tag}}|
-                      {{article.article.create_time|date:"M j, Y" }}
-                    </div>
-                    <div class="description">
-                      {{ article.article.content | truncatewords:"30" }}
-                    </div>
-                  </div>
-                  <!-- 标签状态 -->
-                  <div class="extra content" extra_id="{{article.article.id }}">
-
-
-                      {% if article.article.title in collections %}
-                      <a class="unfavorite">
-                        <i class="heart icon"></i>
-                        {{article.article.favorite}}
-                      </a>
-                      {% else %}
-                      <a class="favorite">
-                        <i class="empty heart icon"></i>
-                        {{article.article.favorite}}
-                      </a>
-                      {% endif %}
-                      <a >
-                        <i class="comment icon"></i>
-                          {{ article.comments_num }}
-                      </a>
-
-                  </div>
-
-                  <!-- comments评论区modal -->
-                  <div myarticle_md_id="{{article.article.id}}" class="ui tiny modal">
-                    <div class="header">
-                      {{article.article.title|capfirst}}
-                    </div>
-                    <div class="content">
-                      <p>{{article.article.content}}</p>
-                    </div>
-                    <div class="ui container padded segment">
-                      <div class="ui comments">
-                            {%for i in article.article_comments%}
-                            <div class="comment">
-                              <a class="avatar">
-                                <img src="{%static 'image/elliot.jpg'%}" alt="">
-                              </a>
-                              <div class="content">
-                                <a class="author">{{i.author}}</a>
-                                <div class="metadata">
-                                  <span class="date">{{i.create_time}}</span>
-                                </div>
-                                <div class="text">
-                                  {{i.comment}}
-                                </div>
-                              </div>
-                            </div>
-                          {%endfor%}
-                      </div>
-
-                      <!-- 添加评论form -->
-                      <form class="ui reply form" action="/add_comment/" method="post">
-                        <div class="article_title" style="display:none;">
-                          <input type="text" name="article_title" value="{{article.article.title}}">
-                        </div>
-                        <div class="field">
-                          <textarea name="comment_content"></textarea>
-                        </div>
-                        <button class="ui primary submit labeled icon button" type="submit" >
-                          <i class="icon edit" ></i> Add Comment
-                        </button>
-                        <div class="ui error message">
-                        </div>
-                        {% csrf_token %}
-                      </form>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-             {%endfor%}
-           </div>
-         </div>
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-        </div>
-        {% else %}
-        <h4 class="ui centered header">Ops! it is EMPTY here</h4>
-        {%endif%}
-      </div>
-
-      <div class="ui  tab" data-tab="favorite">
-        {%if my_favorite %}
-        <div class="ui grid">
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-          <div class="fourteen wide column">
-            <div class="ui four column grid">
-              {% for article in my_favorite %}
-              <div class="column my_favorite">
-                <div class="ui raised link fluid card">
-                  <!-- 正文 -->
-                  <div class="content myfavorite" myfavorite_id="{{ article.article.id }}">
-                    <div class="header" >{{ article.article.title|capfirst}}</div>
-                    <div class="meta">
-                      #{{article.article.tag}}|
-                      {{article.article.create_time|date:"M j, Y" }}
-                    </div>
-                    <div class="description">
-                      {{ article.article.content | truncatewords:"30" }}
-                    </div>
-                  </div>
-                  <!-- 标签状态 -->
-                  <div class="extra content" extra_id="{{ article.article.id }}">
-
-                      <a class="unfavorite">
-                        <i class=" heart icon"></i>
-                        {{article.article.favorite}}
-                      </a>
-
-                      <a >
-                        <i class="comment icon"></i>
-                          {{ article.comments_num }}
-                      </a>
-
-
-                  </div>
-
-                  <!-- comments评论区modal -->
-                  <div myfavorite_md_id="{{article.article.id}}" class="ui tiny modal">
-                    <div class="header">
-                      {{article.article.title|capfirst}}
-                    </div>
-                    <div class="content">
-                      <p>{{article.article.content}}</p>
-                    </div>
-                    <div class="ui container padded segment">
-                      <div class="ui comments">
-                            {%for i in article.article_comments%}
-                            <div class="comment">
-                              <a class="avatar">
-                                <img src="{%static 'image/elliot.jpg'%}" alt="">
-                              </a>
-                              <div class="content">
-                                <a class="author">{{i.author}}</a>
-                                <div class="metadata">
-                                  <span class="date">{{i.create_time}}</span>
-                                </div>
-                                <div class="text">
-                                  {{i.comment}}
-                                </div>
-                              </div>
-                            </div>
-                          {%endfor%}
-                      </div>
-
-                      <!-- 添加评论form -->
-                      <form class="ui reply form" action="/add_comment/" method="post">
-                        <div class="article_title" style="display:none;">
-                          <input type="text" name="article_title" value="{{article.article.title}}">
-                        </div>
-                        <div class="field">
-                          <textarea name="comment_content"></textarea>
-                        </div>
-                        <button class="ui primary submit labeled icon button" type="submit" >
-                          <i class="icon edit" ></i> Add Comment
-                        </button>
-                        <div class="ui error message">
-                        </div>
-                        {% csrf_token %}
-                      </form>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-             {%endfor%}
-           </div>
-         </div>
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-        </div>
-        {%else%}
-        <h4 class="ui centered header">Ops! it ie EMPTY here</h4>
-        {%endif%}
-      </div>
-
-      <div class="ui tab " data-tab="comment">
-        {%if my_comment %}
-        <div class="ui grid">
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-          <div class="fourteen wide column">
-            <div class="ui four column grid">
-              {% for article in my_comment %}
-
-              <div class="column my_comment">
-                <div class="ui raised link fluid card">
-                  <!-- 正文 -->
-                  <div class="content mycomment" mycomment_id="{{ article.article.id }}">
-                    <div class="header" >{{ article.article.title|capfirst}}</div>
-                    <div class="meta">
-                      #{{article.article.tag}}|
-                      {{article.article.create_time|date:"M j, Y" }}
-                    </div>
-                    <div class="description">
-                      {{ article.article.content  }}
-                    </div>
-                  </div>
-                  <!-- 标签状态 -->
-                  <div class="extra content" extra_id="{{ article.article.id }}">
-                    {%if article.article.title in collections%}
-                      <a class="unfavorite">
-                        <i class="heart icon"></i>
-                        {{article.article.favorite}}
-                      </a>
-                    {%else%}
-                    <a class="favorite">
-                      <i class="empty heart icon"></i>
-                      {{article.article.favorite}}
-                    </a>
-                    {%endif%}
-                      <a >
-                        <i class="comment icon"></i>
-                          {{ article.comments_num }}
-                      </a>
-
-
-                  </div>
-
-                  <!-- comments评论区modal -->
-                  <div mycomment_md_id="{{article.article.id}}" class="ui tiny modal">
-                    <div class="header">
-                      {{article.article.title|capfirst}}
-                    </div>
-                    <div class="content">
-                      <p>{{article.article.content}}</p>
-                    </div>
-                    <div class="ui container padded segment">
-                      <div class="ui comments">
-                            {%for i in article.article_comments%}
-                            <div class="comment">
-                              <a class="avatar">
-                                <img src="{%static 'image/elliot.jpg'%}" alt="">
-                              </a>
-                              <div class="content">
-                                <a class="author">{{i.author}}</a>
-                                <div class="metadata">
-                                  <span class="date">{{i.create_time}}</span>
-                                </div>
-                                <div class="text">
-                                  {{i.comment}}
-                                </div>
-                              </div>
-                            </div>
-                          {%endfor%}
-                      </div>
-
-                      <!-- 添加评论form -->
-                      <form class="ui reply form" action="/add_comment/" method="post">
-                        <div class="article_title" style="display:none;">
-                          <input type="text" name="article_title" value="{{article.article.title}}">
-                        </div>
-                        <div class="field">
-                          <textarea name="comment_content"></textarea>
-                        </div>
-                        <button class="ui primary submit labeled icon button" type="submit" >
-                          <i class="icon edit" ></i> Add Comment
-                        </button>
-                        <div class="ui error message">
-                        </div>
-                        {% csrf_token %}
-                      </form>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-             {%endfor%}
-           </div>
-         </div>
-          <div class="one wide column">
-            <div class="column">
-
-            </div>
-          </div>
-        </div>
-        {%else%}
-        <h4 class="ui centered header">Ops! it is EMPTY here</h4>
-        {%endif%}
-      </div>
-
-    </div>
-
-    <!-- 修改密码modal -->
-    <div class="ui mini modal changepwd">
+    <!-- 发布新帖 -->
+    <div id="create_new" class="ui tiny modal">
       <div class="ui container segment">
-        <h4 class="ui inverted centered blue header segment">Change Password</h1>
-        <form class="ui changepwd form" action="{% url 'oneword:changepwd' %}" method="post">
-          <div class="field">
-            <label >Old password</label>
-            <input type="password" name="old_password" id="old_password" placeholder="Input your old password">
-          </div>
-          <div class="old_password_error">
-            <ul>
-              <li>Old password invalid</li>
-            </ul>
-          </div>
-          <div class="field">
-            <label >New password</label>
-            <input type="password" name="new_password1" id="new_password1" placeholder="Input your new password">
-          </div>
-          <div class="field">
-            <label >New password confirm</label>
-            <input type="password" name="new_password2"  id="new_password2" placeholder="Confirm your new password">
-          </div>
-          <div class="ui error message">
-
-          </div>
-          <li>After changing the password, You need to RE-LOGIN</li>
-          <div class="ui divider"></div>
-          <button  name="button" class="ui primary button " id="confirm_change_btn">Confirm</button>
-
-          {% csrf_token %}
-        </form>
+          <a name="createnew"></a>
+          <h3 class="ui inverted blue centered segment header">CREATE NEW</h3>
+          <form class="ui form" action="/create/" method="post">
+            <div class="field">
+              <label>Title</label>
+              <input type="text" name="title" id="article_title" placeholder="input the title" value="">
+            </div>
+            <div class="title_error">
+              <ul>
+                <li>This title has been used, use another one</li>
+              </ul>
+            </div>
+            <div class="field">
+              <label>Tags</label>
+              <input type="text" name="tags" placeholder="input tags" value="">
+            </div>
+            <div class="field">
+              <label>Content</label>
+              <textarea name="newcontent" cols="5"></textarea>
+              <!-- <input type="text" name="newcontent" placeholder="input you article,less than 140 characters" value=""> -->
+            </div>
+            <button class="ui submit button " type="submit" id="create_button">Create</button>
+            <div class="ui error message">
+            </div>
+            {% csrf_token %}
+          </form>
       </div>
     </div>
 
-    <!-- 修改密码成功modal -->
-    <div class="ui mini changepwd_done modal">
-      <div class="ui container segment">
-        <div class="ui header">
-          Change Password success,Please re-login
-        </div>
-        <div class="action">
-          <a class="ui positive right labeled icon button" id="bbtn">
-            OK
-            <i class="checkmark icon"></i>
-          </a>
+    <!-- 无数据搜索提示 -->
+    <div class="ui basic  nostring modal">
+      <div class="ui icon header">
+        <i class="search icon"></i>
+        <h4>Input  author, title  or  tag  to  searche</h4>
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
         </div>
       </div>
+    </div>
+
+    <!-- 搜索内容为空 -->
+    <div class="ui basic  empty modal">
+      <div class="ui icon header">
+        <i class="frown icon"></i>
+        Ops! EMPTY...try other key word
+      </div>
+      <div class="actions">
+        <div class="ui green centered ok  button">
+          <i class="checkmark icon"></i>
+          OK
+        </div>
+      </div>
+    </div>
     </div>
   </body>
 </html>
